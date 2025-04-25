@@ -294,7 +294,8 @@ app.post("/comprar", async (req, res) => {
 
         // 5. Enviar factura por correo (con manejo mejorado de errores)
         try {
-            const response = await fetch('http://localhost:3000/factura/enviar-factura', {
+            const API_URL = process.env.API_FACTURA_URL || 'http://localhost:3000';
+            const response = await fetch(`${API_URL}/factura/enviar-factura`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
