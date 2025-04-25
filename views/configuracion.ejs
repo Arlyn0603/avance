@@ -1,0 +1,1017 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+    <link rel="stylesheet" href="/css/secciones.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <style>
+        :root {
+            --verde-lima: #aaff00;
+            --verde-lima2: #64DD17;
+            --verde-oscuro: #45a029;
+            --gris-oscuro: #1e1e1e;
+            --gris-medio: #2b2b2b;
+            --gris-claro: #3a3a3a;
+            --texto-claro: #e0e0e0;
+        }
+
+        body {
+            background-color: var(--gris-oscuro);
+            color: var(--texto-claro);
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        .search-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            margin-right: 10px;
+        }
+
+        .search-btn img {
+            vertical-align: middle;
+        }
+
+        .admin-container {
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--gris-medio);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .admin-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid var(--gris-claro);
+            border-radius: 6px;
+            background-color: var(--gris-oscuro);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--gris-claro);
+            border-radius: 4px;
+            font-size: 1rem;
+            background-color: var(--gris-medio);
+            color: var(--texto-claro);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+            margin-right: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--verde-oscuro);
+            color: black;
+        }
+
+        .btn-secondary {
+            background: var(--gris-claro);
+            color: var(--texto-claro);
+        }
+
+        .btn-danger {
+            background: #c62828;
+            color: white;
+        }
+
+        .status {
+            padding: 0.75rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+        }
+
+        .status-success {
+            background: var(--verde-lima2);
+            color: black;
+        }
+
+        .status-error {
+            background: #8b0000;
+            color: white;
+        }
+
+        .verification-section {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background-color: var(--gris-medio);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--gris-claro);
+        }
+
+        th {
+            background-color: var(--gris-claro);
+            color: var(--verde-lima);
+        }
+
+        tr:hover {
+            background-color: var(--gris-claro);
+        }
+
+        .tab-container {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background: var(--gris-claro);
+            margin-right: 5px;
+            border-radius: 5px 5px 0 0;
+            color: var(--texto-claro);
+        }
+
+        .tab.active {
+            background: var(--verde-lima);
+            color: black;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .principal {
+            padding-top: 90px;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="logo">
+            <img src="/img/logo.png" alt="EasyTicket">
+        </a>
+        
+        <% if (user) { %>
+            <% if (user.tipo === 'Admin') { %>
+                <!-- Header para Admin -->
+                <div class="profile-dropdown">
+                    <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                        <a href="/administrador">
+                            <img src="/img/user.png" alt="Administrador">
+                        </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                    </button>
+                </div>
+            <% } else { %>
+                <!-- Header para Cliente -->
+                <button class="search-btn" onclick="toggleSearchSection()">
+                    <img src="/img/lupa.png" alt="Buscar" width="20">
+                </button>
+                <div class="profile-dropdown">
+                    <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                        <a href="/usuario">
+                            <img src="/img/user.png" alt="Usuario">
+                        </a><span id="profileEmail"><%= user.firstName %></span>
+                    </button>
+                </div>
+            <% } %>
+        <% } else { %>
+            <!-- Header para usuarios no autenticados -->
+            <button class="search-btn" onclick="toggleSearchSection()">
+                <img src="/img/lupa.png" alt="Buscar" width="20">
+            </button>
+            <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
+        <% } %>
+        
+    </header>
+    <section class="principal">
+        
+
+    <div class="admin-container">
+        <h1>Panel de Administración</h1>
+        
+        <div class="tab-container">
+            <div class="tab active" onclick="openTab('gestion-clientes', event)">Gestión de Clientes</div>
+            <div class="tab" onclick="openTab('seguridad', event)">Seguridad</div>
+            <div class="tab" onclick="openTab('roles', event)">Gestión de Roles</div>
+        </div>
+        
+        <!-- Gestión de Clientes -->
+        <div id="gestion-clientes" class="tab-content active">
+            <div class="admin-section">
+                <h2>Lista de Usuarios</h2>
+                <div class="form-group">
+                    <label for="searchUsers">Buscar por correo electrónico:</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="searchUsers" placeholder="Ingrese correo electrónico...">
+                        <button class="btn btn-primary" onclick="searchByEmail()">Buscar</button>
+                        <button class="btn btn-secondary" onclick="loadUsers()">Mostrar todos</button>
+                    </div>
+                </div>
+                <table id="usersTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Tipo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Los usuarios se cargarán aquí con JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="admin-section">
+                <h2>Editar Usuario</h2>
+                <div id="userLoading" style="display: none;">Cargando usuario...</div>
+                <form id="editUserForm">
+                    <!-- Asegúrate que el campo esté así: -->
+                    <input type="hidden" id="editUserId" value="">
+                    <div class="form-group">
+                        <label for="editNombres">Nombres:</label>
+                        <input type="text" id="editNombres" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editApellidos">Apellidos:</label>
+                        <input type="text" id="editApellidos" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editProvincia">Provincia:</label>
+                        <input type="text" id="editProvincia" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCorreo">Correo Electrónico:</label>
+                        <input type="email" id="editCorreo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTipo">Tipo de Cuenta:</label>
+                        <select id="editTipo" required>
+                            <option value="">Seleccione un tipo</option>
+                            <option value="Cliente">Cliente</option>
+                            <option value="Admin">Administrador</option>
+                            <option value="Empleado">Empleado</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    <button type="button" class="btn btn-danger" onclick="deleteUser()">Eliminar Usuario</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Seguridad -->
+        <div id="seguridad" class="tab-content">
+            <div class="admin-section">
+                <h2>Cambio de Contraseña</h2>
+                <form id="changePasswordForm">
+                    <div class="form-group">
+                        <label for="userEmail">Correo del Usuario:</label>
+                        <input type="email" id="userEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Nueva Contraseña:</label>
+                        <input type="password" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirmar Contraseña:</label>
+                        <input type="password" id="confirmPassword" required>
+                    </div>
+                    <div id="passwordVerificationSection" class="verification-section">
+                        <div class="form-group">
+                            <label for="passwordVerificationCode">Código de verificación:</label>
+                            <input type="text" id="passwordVerificationCode" placeholder="Ingresa el código enviado">
+                        </div>
+                    </div>
+                    <button type="button" id="requestPasswordChangeBtn" class="btn btn-primary">Solicitar Cambio</button>
+                    <button type="submit" id="confirmPasswordChangeBtn" class="btn btn-primary" style="display:none;">Confirmar Cambio</button>
+                </form>
+            </div>
+            
+            <div class="admin-section">
+                <h2>Autenticación de Dos Factores</h2>
+                <p>La autenticación de dos factores por correo electrónico está siempre activa para mayor seguridad.</p>
+                
+                <div class="form-group">
+                    <label>Correo actual para autenticación:</label>
+                    <input type="text" id="currentAuthEmail" >
+                </div>
+                
+                <div class="form-group">
+                    <label for="newAuthEmail">Nuevo correo para autenticación:</label>
+                    <input type="email" id="newAuthEmail" placeholder="Ingresa tu nuevo correo">
+                </div>
+                
+                <button id="requestAuthEmailChangeBtn" class="btn btn-primary">Solicitar Cambio</button>
+                
+                <div id="authEmailVerificationSection" class="verification-section">
+                    <div class="form-group">
+                        <label for="authEmailVerificationCode">Código de verificación:</label>
+                        <input type="text" id="authEmailVerificationCode" placeholder="Ingresa el código enviado">
+                    </div>
+                    <button id="confirmAuthEmailChangeBtn" class="btn btn-primary">Confirmar Cambio</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Gestión de Roles -->
+        <div id="roles" class="tab-content">
+            <div class="admin-section">
+                <h2>Roles Existentes</h2>
+                <table id="rolesTable">
+                    <thead>
+                        <tr>
+                            <th>Nombre del Rol</th>
+                            <th>Descripción</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Cliente</td>
+                            <td>Usuario estándar con permisos básicos</td>
+                            <td><button class="btn btn-danger" disabled>Eliminar</button></td>
+                        </tr>
+                        <tr>
+                            <td>Admin</td>
+                            <td>Administrador con todos los permisos</td>
+                            <td><button class="btn btn-danger" disabled>Eliminar</button></td>
+                        </tr>
+                        <tr>
+                            <td>Empleado</td>
+                            <td>Empleado con permisos limitados</td>
+                            <td><button class="btn btn-danger" onclick="deleteRole('Empleado')">Eliminar</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="admin-section">
+                <h2>Crear Nuevo Rol</h2>
+                <form id="createRoleForm">
+                    <div class="form-group">
+                        <label for="roleName">Nombre del Rol:</label>
+                        <input type="text" id="roleName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="roleDescription">Descripción:</label>
+                        <textarea id="roleDescription" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Crear Rol</button>
+                </form>
+            </div>
+        </div>
+        
+        <div id="statusMessage" class="status" style="display: none;"></div>
+    </div>
+    
+    <script>
+        // Funciones para manejar las pestañas
+        function openTab(tabName, event = null) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(button => button.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            
+            // Solo intenta acceder a currentTarget si event existe
+            if (event) {
+                event.currentTarget.classList.add('active');
+            }
+        }
+        
+        function clearSearch() {
+            document.getElementById('searchUsers').value = '';
+            loadUsers();
+        }
+
+        // Cargar usuarios al iniciar
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadUsers();
+            await loadRoles();
+            // Configurar formularios
+            setupEditUserForm();
+            setupPasswordChangeForm();
+            setupAuthEmailChange();
+        });
+        
+        async function loadUsers() {
+    try {
+        const response = await fetch('/empleados/get-users');
+        const data = await response.json();
+        
+        if (data.success && data.users) {
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+            
+            data.users.forEach(user => {
+                const row = document.createElement('tr');
+                // En la función que crea las filas de la tabla:
+                row.innerHTML = `
+                    <td>${user.Id}</td>
+                    <td>${user.Nombres} ${user.Apellidos}</td>
+                    <td>${user.CorreoElectronico}</td>
+                    <td>${user.tipo}</td>
+                    <td>
+                        <button class="btn btn-primary" 
+                                onclick="editUser(${user.Id})" 
+                                data-id="${user.Id}">
+                            Editar
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } else {
+            showStatus('Error al cargar usuarios', false);
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        showStatus('Error de conexión', false);
+    }
+}
+
+async function searchByEmail() {
+    const email = document.getElementById('searchUsers').value.trim();
+    
+    if (!email) {
+        showStatus('Por favor ingrese un correo electrónico para buscar', false);
+        return;
+    }
+
+    try {
+        const response = await fetch(`/empleados/search-by-email?email=${encodeURIComponent(email)}`);
+        const data = await response.json();
+        
+        if (data.success && data.users) {
+            const tbody = document.querySelector('#usersTable tbody');
+            tbody.innerHTML = '';
+            
+            if (data.users.length === 0) {
+                showStatus('No se encontraron usuarios con ese correo electrónico', false);
+            }
+            
+            data.users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.Id}</td>
+                    <td>${user.Nombres || ''} ${user.Apellidos || ''}</td>
+                    <td>${user.CorreoElectronico || ''}</td>
+                    <td>${user.tipo || ''}</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editUser(${user.Id})">Editar</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } else {
+            showStatus(data.message || 'Error al buscar usuarios', false);
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        showStatus('Error de conexión', false);
+    }
+}
+
+// Elimina el event listener de input si lo tenías y deja solo esto:
+document.getElementById('searchUsers').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchByEmail();
+    }
+});
+        
+        // Editar usuario
+        // Editar usuario - Función modificada
+        function editUser(userId) {
+            
+            console.log('ID recibido:', userId, 'Tipo:', typeof userId);
+            
+            if (userId === undefined || userId === null || userId === 'undefined') {
+                console.error('ID no proporcionado');
+                return;
+            }
+            
+             // Validación más estricta del ID
+             const numericId = parseInt(userId);
+            if (isNaN(numericId)) {
+                console.error('ID no es número:', userId);
+                return;
+            }
+
+            // Guarda el ID en DOS lugares:
+            // 1. En el campo oculto
+            document.getElementById('editUserId').value = numericId;
+            
+            // 2. En una variable global (como respaldo)
+            window.currentEditingUserId = numericId;
+    
+    console.log('ID establecido:', numericId); // Para depuración
+
+            const loadingIndicator = document.getElementById('userLoading');
+            loadingIndicator.style.display = 'block';
+            document.getElementById('statusMessage').style.display = 'none';
+
+            fetch(`/empleados/get-user/${numericId}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                    return response.json();
+                })
+                .then(data => {
+                    loadingIndicator.style.display = 'none';
+                    
+                    if (data.success && data.user) {
+                        const user = data.user;
+                        console.log('Usuario cargado:', user);
+                        
+                        document.getElementById('editUserId').value = user.Id;
+                        document.getElementById('editNombres').value = user.Nombres || '';
+                        document.getElementById('editApellidos').value = user.Apellidos || '';
+                        document.getElementById('editProvincia').value = user.Provincia || '';
+                        document.getElementById('editCorreo').value = user.CorreoElectronico || '';
+                        
+                        const tipoSelect = document.getElementById('editTipo');
+                        if (user.tipo) {
+                            for (let i = 0; i < tipoSelect.options.length; i++) {
+                                if (tipoSelect.options[i].value === user.tipo) {
+                                    tipoSelect.selectedIndex = i;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        openTab('gestion-clientes', null); // Cambio clave aquí
+                    } else {
+                        showStatus(data.message || 'Error al cargar usuario', false);
+                    }
+                })
+                .catch(err => {
+                    loadingIndicator.style.display = 'none';
+                    console.error('Error al cargar usuario:', err);
+                    showStatus('Error al cargar datos del usuario: ' + err.message, false);
+                });
+        }
+        // Configurar formulario de edición de usuario
+        function setupEditUserForm() {
+            document.getElementById('editUserForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                // Obtiene el ID de TRES fuentes posibles (en orden de prioridad)
+                const userId = window.currentEditingUserId || 
+                            document.getElementById('editUserId').value || 
+                            e.target.dataset.userId;
+                
+                if (!userId) {
+                    showStatus('No se detectó ID de usuario. Recargue la página e intente nuevamente.', false);
+                    return;
+                }
+
+                const userData = {
+                    nombres: document.getElementById('editNombres').value,
+                    apellidos: document.getElementById('editApellidos').value,
+                    provincia: document.getElementById('editProvincia').value,
+                    correo: document.getElementById('editCorreo').value,
+                    tipo: document.getElementById('editTipo').value
+                };
+                
+                try {
+                    const response = await fetch(`/empleados/update-user/${userId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showStatus('Usuario actualizado correctamente', true);
+                        await loadUsers();
+                    } else {
+                        showStatus(result.message || 'Error al actualizar usuario', false);
+                    }
+                } catch (err) {
+                    console.error('Error:', err);
+                    showStatus('Error de conexión: ' + err.message, false);
+                }
+            });
+        }
+        
+        // Eliminar usuario
+        function deleteUser() {
+            // Obtiene el ID de múltiples fuentes posibles
+            const userId = parseInt(document.getElementById('editUserId').value) || 
+                        window.currentEditingUserId;
+            
+            // Validación exhaustiva
+            if (isNaN(userId) || userId <= 0) {
+                showStatus('Error: Seleccione un usuario válido primero', false);
+                console.error('ID inválido para eliminar:', {
+                    inputValue: document.getElementById('editUserId').value,
+                    currentEditingUserId: window.currentEditingUserId
+                });
+                return;
+            }
+
+            if (!confirm(`¿Está seguro que desea eliminar al usuario con ID ${userId}?`)) {
+                return;
+            }
+            
+            showStatus('Eliminando usuario...', true);
+            
+            fetch(`/empleados/delete-user/${userId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Error en la respuesta del servidor');
+                return response.json();
+            })
+            .then(async data => {
+                if (data.success) {
+                    showStatus('Usuario eliminado correctamente', true);
+                    document.getElementById('editUserForm').reset();
+                    await loadUsers();
+                    // Limpia el ID después de eliminar
+                    document.getElementById('editUserId').value = '';
+                    window.currentEditingUserId = null;
+                } else {
+                    showStatus(data.message || 'Error al eliminar usuario', false);
+                }
+            })
+            .catch(err => {
+                console.error('Error al eliminar:', err);
+                showStatus('Error de conexión al eliminar: ' + err.message, false);
+            });
+        }
+        
+        // Configurar formulario de cambio de contraseña
+        function setupPasswordChangeForm() {
+            const requestBtn = document.getElementById('requestPasswordChangeBtn');
+            const confirmBtn = document.getElementById('confirmPasswordChangeBtn');
+            const verificationSection = document.getElementById('passwordVerificationSection');
+            
+            requestBtn.addEventListener('click', async () => {
+                const email = document.getElementById('userEmail').value.trim();
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                if (!email) {
+                    showStatus('Por favor ingresa un correo válido', false);
+                    return;
+                }
+                
+                if (newPassword !== confirmPassword) {
+                    showStatus('Las contraseñas no coinciden', false);
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/empleados/request-password-change', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showStatus('Código enviado al correo del usuario', true);
+                        verificationSection.style.display = 'block';
+                        requestBtn.style.display = 'none';
+                        confirmBtn.style.display = 'inline-block';
+                    } else {
+                        showStatus(result.message || 'Error al solicitar cambio', false);
+                    }
+                } catch (err) {
+                    console.error('Error:', err);
+                    showStatus('Error de conexión', false);
+                }
+            });
+            
+            confirmBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('userEmail').value.trim();
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                const code = document.getElementById('passwordVerificationCode').value.trim();
+                
+                if (newPassword !== confirmPassword) {
+                    showStatus('Las contraseñas no coinciden', false);
+                    return;
+                }
+                
+                if (!code) {
+                    showStatus('Por favor ingresa el código', false);
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/empleados/confirm-password-change', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, newPassword, code })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showStatus('Contraseña actualizada correctamente', true);
+                        verificationSection.style.display = 'none';
+                        requestBtn.style.display = 'inline-block';
+                        confirmBtn.style.display = 'none';
+                        document.getElementById('changePasswordForm').reset();
+                    } else {
+                        showStatus(result.message || 'Error al confirmar cambio', false);
+                    }
+                } catch (err) {
+                    console.error('Error:', err);
+                    showStatus('Error de conexión', false);
+                }
+            });
+        }
+        
+        // Configurar cambio de correo de autenticación
+        function setupAuthEmailChange() {
+            const requestBtn = document.getElementById('requestAuthEmailChangeBtn');
+            const confirmBtn = document.getElementById('confirmAuthEmailChangeBtn');
+            const verificationSection = document.getElementById('authEmailVerificationSection');
+            
+            requestBtn.addEventListener('click', async () => {
+                const newEmail = document.getElementById('newAuthEmail').value.trim();
+                
+                if (!newEmail) {
+                    showStatus('Por favor ingresa un correo válido', false);
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/empleados/request-auth-email-change', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ newEmail })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showStatus('Código enviado al nuevo correo', true);
+                        verificationSection.style.display = 'block';
+                    } else {
+                        showStatus(result.message || 'Error al solicitar cambio', false);
+                    }
+                } catch (err) {
+                    console.error('Error:', err);
+                    showStatus('Error de conexión', false);
+                }
+            });
+            
+            confirmBtn.addEventListener('click', async () => {
+                const code = document.getElementById('authEmailVerificationCode').value.trim();
+                
+                if (!code) {
+                    showStatus('Por favor ingresa el código', false);
+                    return;
+                }
+                
+                try {
+                    const response = await fetch('/empleados/confirm-auth-email-change', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ code })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        showStatus('Correo de autenticación actualizado correctamente', true);
+                        verificationSection.style.display = 'none';
+                        document.getElementById('newAuthEmail').value = '';
+                        document.getElementById('authEmailVerificationCode').value = '';
+                        
+                   
+                    } else {
+                        showStatus(result.message || 'Error al confirmar cambio', false);
+                    }
+                } catch (err) {
+                    console.error('Error:', err);
+                    showStatus('Error de conexión', false);
+                }
+            });
+            
+        
+        }
+        
+        // Crear nuevo rol
+        document.getElementById('createRoleForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const roleName = document.getElementById('roleName').value.trim();
+    const roleDescription = document.getElementById('roleDescription').value.trim();
+    
+    if (!roleName || !roleDescription) {
+        showStatus('Por favor completa todos los campos', false);
+        return;
+    }
+    
+    try {
+        const response = await fetch('/empleados/create-role', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ roleName, roleDescription })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showStatus('Rol creado correctamente', true);
+            document.getElementById('createRoleForm').reset();
+            await loadRoles();
+        } else {
+            showStatus(result.message || 'Error al crear rol', false);
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        showStatus('Error de conexión', false);
+    }
+});
+        
+        // Eliminar rol
+        async function deleteRole(roleName) {
+    if (!confirm(`¿Estás seguro de que deseas eliminar el rol ${roleName}?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/empleados/delete-role/${roleName}`, {
+            method: 'DELETE'
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            showStatus('Rol eliminado correctamente', true);
+            await loadRoles();
+        } else {
+            showStatus(data.message || 'Error al eliminar rol', false);
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        showStatus('Error de conexión', false);
+    }
+}
+        
+        
+        // Mostrar mensajes de estado
+        function showStatus(message, isSuccess) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = isSuccess ? 'status status-success' : 'status status-error';
+            statusDiv.style.display = 'block';
+            
+            // Ocultar después de 5 segundos
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Cargar roles al iniciar
+async function loadRoles() {
+    try {
+        const response = await fetch('/empleados/get-roles');
+        const data = await response.json();
+        
+        if (data.success) {
+            const tbody = document.querySelector('#rolesTable tbody');
+            tbody.innerHTML = '';
+            
+            data.roles.forEach(role => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${role}</td>
+                    <td>${role === 'Admin' ? 'Administrador con todos los permisos' : 
+                        role === 'Cliente' ? 'Usuario estándar con permisos básicos' : 
+                        'Empleado con permisos limitados'}</td>
+                    <td>
+                        ${role === 'Admin' || role === 'Cliente' ? 
+                            '<button class="btn btn-danger" disabled>Eliminar</button>' : 
+                            `<button class="btn btn-danger" onclick="deleteRole('${role}')">Eliminar</button>`}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        } else {
+            showStatus('Error al cargar roles', false);
+        }
+    } catch (err) {
+        console.error('Error:', err);
+        showStatus('Error de conexión', false);
+    }
+}
+
+// Funciones del header
+function toggleProfileMenu() {
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+}
+
+function toggleSearchSection() {
+    const searchSection = document.getElementById('searchSection');
+    searchSection.classList.toggle('visible');
+}
+
+function openModal() {
+    document.getElementById('loginModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('loginModal').style.display = 'none';
+}
+
+function openRegisterModal() {
+    closeModal();
+    document.getElementById('registerModal').style.display = 'flex';
+}
+
+function closeRegisterModal() {
+    document.getElementById('registerModal').style.display = 'none';
+}
+
+function openForgotPasswordModal() {
+    closeModal();
+    document.getElementById('forgotPasswordModal').style.display = 'flex';
+}
+
+function closeForgotPasswordModal() {
+    document.getElementById('forgotPasswordModal').style.display = 'none';
+}
+
+function openTwoFactorModal() {
+    closeModal();
+    document.getElementById('twoFactorModal').style.display = 'flex';
+}
+
+function closeTwoFactorModal() {
+    document.getElementById('twoFactorModal').style.display = 'none';
+}
+
+// Cerrar modales al hacer clic fuera de ellos
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+    }
+    
+    if (!event.target.matches('.profile-btn')) {
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        if (dropdownMenu && dropdownMenu.style.display === 'block') {
+            dropdownMenu.style.display = 'none';
+        }
+    }
+}
+    </script>
+</body>
+</html>

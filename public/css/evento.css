@@ -1,0 +1,194 @@
+/* evento.css - Dark theme overrides for Evento form and its components */
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  /* Fondo y tipografía general */
+  body {
+    background-color: #000;
+    color: #fff;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Encabezados y labels */
+  h1, h2, h3, .form-label {
+    color: #C1FF00;
+  }
+  
+  /* Contenedor principal */
+  .principal, .container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #000;
+    border: 1px solid #444;
+    border-radius: 10px;
+  }
+  
+  /* Formularios - inputs y selects */
+  .form-control,
+  .form-select {
+    background-color: #111 !important;
+    color: #fff !important;
+    border: 2px solid #C1FF00 !important;
+    border-radius: 8px !important;
+  }
+  
+  /* Focus states */
+  .form-control:focus,
+  .form-select:focus {
+    background-color: #111 !important;
+    border-color: #AEF200 !important;
+    box-shadow: none !important;
+    color: #fff;
+  }
+  
+  /* File input */
+  .form-control[type="file"] {
+    background-color: #111;
+    color: #fff;
+    border: 2px solid #C1FF00;
+  }
+  
+  /* Input-group text/icon */
+  .input-group-text {
+    background-color: #111;
+    color: #fff;
+    border: 2px solid #C1FF00;
+  }
+  
+  /* DateTime picker override */
+  input[type="datetime-local"] {
+    background-color: #111;
+    color: #fff;
+    border: 2px solid #C1FF00;
+  }
+  
+  /* Cards (lugar info, bloques) */
+  .card,
+  .card-header,
+  .card-body {
+    background-color: #111;
+    color: #fff;
+    border: 1px solid #444;
+  }
+  
+  /* Bloques container */
+  .bloques-container {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  
+  /* Botones */
+  button,
+  .btn {
+    background-color: #C1FF00;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  button:hover,
+  .btn:hover {
+    background-color: #c4ff4f;
+    transform: scale(1.05);
+  }
+  button:active,
+  .btn:active {
+    transform: scale(0.95);
+  }
+  button:disabled,
+  .btn:disabled {
+    background-color: #666;
+    cursor: not-allowed;
+  }
+  
+  /* Tabla (si aplica) */
+  .table {
+    background-color: #111;
+    color: #fff;
+    border-color: #444;
+  }
+  .table thead th,
+  .table tbody td {
+    border-color: #444;
+  }
+  
+  /* Placeholder color */
+  ::placeholder {
+    color: #888;
+  }
+  
+  /* Scrollbar oscuro para contenedores */
+  .bloques-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  .bloques-container::-webkit-scrollbar-thumb {
+    background-color: #444;
+    border-radius: 4px;
+  }
+  .bloques-container::-webkit-scrollbar-track {
+    background-color: #111;
+  }
+
+/* Estilos para pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+    .principal, .container {
+        padding: 15px; /* Reducir el padding */
+        margin: 10px; /* Reducir márgenes */
+    }
+
+    h1, h2, h3 {
+        font-size: 1.5rem; /* Reducir tamaño de encabezados */
+        text-align: center; /* Centrar encabezados */
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 14px; /* Reducir tamaño de fuente */
+        padding: 8px; /* Ajustar padding */
+    }
+
+    button, .btn {
+        font-size: 14px; /* Reducir tamaño de fuente */
+        padding: 8px 15px; /* Ajustar padding */
+    }
+
+    .bloques-container {
+        max-height: 300px; /* Reducir altura máxima */
+    }
+}
+
+/* Estilos para pantallas medianas (tablets) */
+@media (max-width: 1024px) {
+    .principal, .container {
+        padding: 20px; /* Ajustar padding */
+        margin: 15px auto; /* Centrar y ajustar márgenes */
+    }
+
+    h1, h2, h3 {
+        font-size: 1.8rem; /* Ajustar tamaño de encabezados */
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 15px; /* Ajustar tamaño de fuente */
+        padding: 10px; /* Ajustar padding */
+    }
+
+    button, .btn {
+        font-size: 15px; /* Ajustar tamaño de fuente */
+        padding: 10px 20px; /* Ajustar padding */
+    }
+
+    .bloques-container {
+        max-height: 350px; /* Ajustar altura máxima */
+    }
+}

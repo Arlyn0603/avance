@@ -1,0 +1,113 @@
+/* Estilos para el perfil de usuario */
+body{
+    background-color: #000; /* Fondo negro */
+
+}
+.profile-container {
+    text-align: center;
+    margin: 20px auto;
+    max-width: 400px;
+    padding: 20px;
+    background-color: #000; /* Fondo negro */
+    border: 1px solid #444; /* Borde oscuro */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5); /* Sombra más oscura */
+}
+
+.profile-image {
+    font-size: 4em;
+    color: #aaff00; /* Verde fosforescente */
+    margin-bottom: 10px;
+}
+
+.profile-name {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #fff; /* Texto blanco */
+}
+
+.profile-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Espaciado entre opciones */
+}
+
+.profile-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    font-size: 1em;
+    font-weight: bold;
+    color: #000; /* Texto negro */
+    background-color: #aaff00; /* Fondo verde fosforescente */
+    border: 2px solid #aaff00; /* Borde del mismo color */
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transición suave */
+}
+
+.profile-option i {
+    margin-right: 8px; /* Espaciado entre el icono y el texto */
+}
+
+.profile-option:hover {
+    background-color: #739e06; /* Verde más oscuro */
+    transform: scale(1.05); /* Efecto de zoom */
+}
+
+.profile-option:active {
+    transform: scale(0.95); /* Efecto de clic */
+}
+
+/* Estilos para pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+    .profile-container {
+        max-width: 90%; /* Ocupa casi todo el ancho disponible */
+        padding: 15px; /* Reducir padding */
+        margin: 10px auto; /* Ajustar márgenes */
+    }
+
+    .profile-image {
+        font-size: 3em; /* Reducir tamaño de la imagen */
+    }
+
+    .profile-name {
+        font-size: 1.2em; /* Reducir tamaño del nombre */
+    }
+
+    .profile-options {
+        gap: 10px; /* Reducir espacio entre opciones */
+    }
+
+    .profile-option {
+        font-size: 0.9em; /* Reducir tamaño de fuente */
+        padding: 10px; /* Ajustar padding */
+    }
+}
+
+/* Estilos para pantallas medianas (tablets) */
+@media (max-width: 1024px) {
+    .profile-container {
+        max-width: 80%; /* Ajustar el ancho */
+        padding: 20px; /* Ajustar padding */
+    }
+
+    .profile-image {
+        font-size: 3.5em; /* Ajustar tamaño de la imagen */
+    }
+
+    .profile-name {
+        font-size: 1.4em; /* Ajustar tamaño del nombre */
+    }
+
+    .profile-options {
+        gap: 12px; /* Ajustar espacio entre opciones */
+    }
+
+    .profile-option {
+        font-size: 1em; /* Ajustar tamaño de fuente */
+        padding: 12px; /* Ajustar padding */
+    }
+}

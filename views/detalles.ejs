@@ -5,8 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= evento.nombre %> - Detalles</title>
     <link rel="stylesheet" href="/css/estilos.css">
+    
    
 </head>
+<header class="header">
+    <a href="/" class="logo">
+        <img src="/img/logo.png" alt="EasyTicket">
+    </a>
+    <nav class="nav">
+        <a href="#">Conciertos</a>
+        <a href="#">Deportes</a>
+        <a href="#">Teatro</a>
+        <a href="#">Culturales</a>
+        <a href="#">Comedia</a>
+        <a href="#">Festivales</a>
+    </nav>
+    <% if (user) { %>
+        <% if (user.tipo === 'Admin') { %>
+            <!-- Header para Admin -->
+            <div class="profile-dropdown">
+                <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                    <a href="/administrador">
+                        <img src="/img/user.png" alt="Administrador">
+                    </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                </button>
+            </div>
+        <% } else { %>
+            <!-- Header para Cliente -->
+            <button class="search-btn" onclick="toggleSearchSection()">
+                <img src="/img/lupa.png" alt="Buscar" width="20">
+            </button>
+            <div class="profile-dropdown">
+                <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                    <a href="/usuario">
+                        <img src="/img/user.png" alt="Usuario">
+                    </a><span id="profileEmail"><%= user.firstName %></span>
+                </button>
+            </div>
+        <% } %>
+    <% } else { %>
+        <!-- Header para usuarios no autenticados -->
+        <button class="search-btn" onclick="toggleSearchSection()">
+            <img src="/img/lupa.png" alt="Buscar" width="20">
+        </button>
+        <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
+    <% } %>
+    
+</header>
+
+
+<script>
+    // Función para alternar el menú de perfil
+    function toggleProfileMenu() {
+        const dropdownMenu = document.getElementById('dropdownMenu');
+        dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    // Cerrar el menú si se hace clic fuera de él
+    window.onclick = function(event) {
+        if (!event.target.matches('.profile-btn')) {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            if (dropdownMenu.style.display === 'block') {
+                dropdownMenu.style.display = 'none';
+            }
+        }
+    }
+
+</script>
 <body>
     
     <section class="event-details">

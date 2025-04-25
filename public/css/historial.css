@@ -49,7 +49,7 @@ h1 {
     cursor: pointer;
     
     /* Colores y borde */
-    color: #000;                     /* Texto en negro */
+    color: #ffffff;                     /* Texto en negro */
     background-color: transparent;   /* Fondo transparente */
     border: 2px solid #C1FF00;       /* Borde verde fosforescente (ajusta a tu gusto) */
     border-radius: 8px;             /* Bordes redondeados */
@@ -62,7 +62,7 @@ h1 {
 .btn-reenviar:hover {
     /* Al pasar el mouse, invertimos colores o resaltamos */
     background-color: #C1FF00;
-    color: white;  /* Texto negro sobre fondo verde */
+    color: rgb(0, 0, 0);  /* Texto negro sobre fondo verde */
 }
 
 /* Botón "Ver Compra" con relleno verde y texto negro */
@@ -154,4 +154,36 @@ h1 {
     color: #000;
     text-decoration: none;
     cursor: pointer;
+} 
+
+
+.modal-content h2 {
+    margin-top: 0;
+}
+
+
+
+.modal-content button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.modal-content button:hover {
+    background-color: #45a049;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: black;
 }

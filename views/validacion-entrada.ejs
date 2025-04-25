@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Validación de Entrada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .validation-container {
+            max-width: 500px;
+            width: 100%;
+            padding: 2rem;
+            border-radius: 10px;
+            background: <%= valido ? '#d4edda' : '#f8d7da' %>;
+            color: <%= valido ? '#155724' : '#721c24' %>;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            margin-bottom: 1.5rem;
+            color: <%= valido ? '#28a745' : '#dc3545' %>;
+        }
+        
+        .icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .message {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-back {
+            display: inline-block;
+            padding: 10px 20px;
+            background: <%= valido ? '#28a745' : '#dc3545' %>;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-back:hover {
+            background: <%= valido ? '#218838' : '#c82333' %>;
+        }
+    </style>
+</head>
+<body>
+    <div class="validation-container">
+        <div class="icon">
+            <%= valido ? '✓' : '✗' %>
+        </div>
+        <h1><%= valido ? 'VALIDACIÓN EXITOSA' : 'VALIDACIÓN FALLIDA' %></h1>
+        <div class="message">
+            <%= mensaje %>
+        </div>
+        <a href="/" class="btn-back">VOLVER AL INICIO</a>
+    </div>
+</body>
+</html>

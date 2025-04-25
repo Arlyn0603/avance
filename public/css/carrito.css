@@ -178,6 +178,77 @@ main {
   /* Responsividad básica: en pantallas muy pequeñas, que todo se apile */
   @media (max-width: 768px) {
     .cart-content {
-      flex-direction: column;
+        flex-direction: column; /* Apilar contenido verticalmente */
+        gap: 1rem; /* Reducir el espacio entre elementos */
     }
-  }
+
+    .cart-container,
+    .cart-summary {
+        width: 100%; /* Ocupa todo el ancho disponible */
+        margin: 0; /* Elimina márgenes laterales */
+    }
+
+    .cart-item {
+        flex-direction: column; /* Apilar contenido de cada item */
+        align-items: flex-start;
+    }
+
+    .cart-item-image img {
+        width: 100%; /* Imagen ocupa todo el ancho */
+        max-width: 300px; /* Limitar el tamaño máximo */
+        margin-bottom: 1rem; /* Espacio debajo de la imagen */
+    }
+
+    .form-inline {
+        flex-direction: column; /* Formularios en columna */
+        align-items: flex-start;
+    }
+
+    .form-inline input[type="number"] {
+        width: 100%; /* Campo de cantidad ocupa todo el ancho */
+        margin: 0 0 0.5rem 0; /* Espacio debajo del campo */
+    }
+
+    .form-inline button {
+        width: 100%; /* Botones ocupan todo el ancho */
+    }
+
+    .promo-code {
+        flex-direction: column; /* Apilar código promocional */
+    }
+
+    .promo-code input {
+        margin-bottom: 0.5rem; /* Espacio debajo del campo */
+    }
+
+    .checkout-btn {
+        font-size: 0.9rem; /* Reducir tamaño de fuente */
+        padding: 0.5rem 1rem; /* Ajustar padding */
+    }
+}
+
+/* Responsividad para pantallas medianas (tablets) */
+@media (max-width: 1024px) {
+    .cart-content {
+        gap: 1.5rem; /* Ajustar espacio entre elementos */
+    }
+
+    .cart-container,
+    .cart-summary {
+        max-width: 90%; /* Reducir el ancho máximo */
+        margin: 0 auto; /* Centrar los elementos */
+    }
+
+    .cart-item-image img {
+        width: 150px; /* Ajustar tamaño de la imagen */
+    }
+
+    .form-inline input[type="number"] {
+        width: 80px; /* Ajustar ancho del campo */
+    }
+
+    .checkout-btn {
+        font-size: 1rem; /* Ajustar tamaño de fuente */
+        padding: 0.75rem 1.25rem; /* Ajustar padding */
+    }
+}

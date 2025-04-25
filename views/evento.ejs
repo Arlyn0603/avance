@@ -3,14 +3,165 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Easy Ticket</title>
+    <title>Crear Evento</title>
+    <link rel="stylesheet" href="/css/edificaciones.css">
     <link rel="stylesheet" href="/css/estilos.css">
+    <link rel="stylesheet" href="/css/carrito.css">
     <link rel="stylesheet" href="/css/secciones.css">
     <link rel="stylesheet" href="/css/modal.css">
+    <link rel="stylesheet" href="/css/evento.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .header {
-            position: relative; /* o elimina position:absolute si no es necesario */
-            z-index: 10;
+        body {
+            background-color: #000000;
+        }
+        .precio-input {
+            max-width: 150px;
+        }
+        .lugar-imagen {
+            max-height: 200px;
+            object-fit: contain;
+        }
+        .bloques-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+       
+        h1, h2, h3 {
+            color: #C1FF00;
+            text-align: center;
+        }
+
+        /* Formulario */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #C1FF00;
+        }
+
+        input, textarea, select, button {
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid #C1FF00;
+            border-radius: 8px;
+            background-color: #000;
+            color: #fff;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #AEF200;
+        }
+
+        button {
+            font-weight: bold;
+            background-color: #C1FF00;
+            color: #000;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #AEF200;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        /* Lista de lugares */
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #222;
+            border: 1px solid #444;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        li a {
+            color: #C1FF00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        li a:hover {
+            text-decoration: underline;
+        }
+
+        li img {
+            width: 100px;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #C1FF00;
+        }
+
+        /* Estilos para bloques */
+        .bloque {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #222;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+
+        .bloque-oculto {
+            display: none;
+        }
+
+        .resumen-bloque {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .resumen-bloque:hover {
+            background-color: #444;
+        }
+
+        .botones-bloque {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .error {
+            color: #ff5555;
+            font-size: 0.9em;
+            margin-top: -10px;
+        }
+
+        .nombre-error {
+            color: #ff5555;
+            font-size: 0.9em;
+            margin-top: -10px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -29,114 +180,473 @@
                 <a href="#">Festivales</a>
             </nav>
             <% if (user) { %>
-                <!-- Botón de perfil (visible cuando el usuario está autenticado) -->
-                <div class="profile-dropdown">
-                    <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
-                        <img src="/img/user.png" alt="Perfil">
-                        <span id="profileEmail"><%= user.email %></span> <!-- Mostrar el correo aquí -->
-                    </button>
-                    <div class="dropdown-menu" id="dropdownMenu">
-                        <a href="/historial">Historial</a> <!-- Cambiado de "Perfil" a "Historial" -->
-                        <a href="/billetera">Billetera</a>
-                        <a href="/atencion/tickets/vista">Mis Tickets</a>
-                        <a href="/logout">Cerrar sesión</a>
+                <% if (user.tipo === 'Admin') { %>
+                    <!-- Header para Admin -->
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/administrador">
+                                <img src="/img/user.png" alt="Administrador">
+                            </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                        </button>
                     </div>
-                </div>
+                <% } else { %>
+                    <!-- Header para Cliente -->
+                    <button class="search-btn" onclick="toggleSearchSection()">
+                        <img src="/img/lupa.png" alt="Buscar" width="20">
+                    </button>
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/usuario">
+                                <img src="/img/user.png" alt="Usuario">
+                            </a><span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } %>
             <% } else { %>
-                <!-- Botón de iniciar sesión (visible cuando el usuario no está autenticado) -->
+                <!-- Header para usuarios no autenticados -->
+                <button class="search-btn" onclick="toggleSearchSection()">
+                    <img src="/img/lupa.png" alt="Buscar" width="20">
+                </button>
                 <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
             <% } %>
         </header>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= evento.nombre %></title>
-    <link rel="stylesheet" href="/css/eventos.css">
+
+    <div class="container mt-4">
+        <h2>Crear Nuevo Evento</h2>
+        
+        <form id="eventoForm">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="nombre" class="form-label">Nombre del Evento</label>
+                    <input type="text" class="form-control" id="nombre" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="tipo" class="form-label">Tipo de Evento</label>
+                    <select class="form-select" id="tipo" required>
+                        <option value="">Seleccione...</option>
+                        <option value="concierto">Concierto</option>
+                        <option value="teatro">Teatro</option>
+                        <option value="deportivo">Deportivo</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="lugar" class="form-label">Lugar</label>
+                    <select class="form-select" id="lugar" required>
+                        <option value="">Seleccione un lugar...</option>
+                    <!-- Se llenará dinámicamente -->
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="fecha" class="form-label">Fecha y Hora</label>
+                    <input type="datetime-local" class="form-control" id="fecha" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="descripcion" rows="3"></textarea>
+            </div> 
+            <!-- Agrega este campo en tu formulario, preferiblemente después del textarea de descripción -->
+<div class="mb-3">
+    <label for="imagenEvento" class="form-label">Imagen del Evento</label>
+    <input type="file" class="form-control" id="imagenEvento" accept="image/*">
+    <small class="text-muted">Formatos aceptados: JPG, PNG, GIF. Tamaño máximo: 2MB</small>
+</div>
+
+            <!-- Sección de información del lugar seleccionado -->
+            <div id="lugarInfo" class="card mb-3 d-none">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img id="lugarImagen" class="img-fluid rounded-start lugar-imagen" src="" alt="Imagen del lugar">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 id="lugarNombre" class="card-title"></h5>
+                            <p id="lugarCapacidad" class="card-text"></p>
+                            <p id="lugarDireccion" class="card-text"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de bloques y precios -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5>Bloques y Precios</h5>
+                </div>
+                <div class="card-body bloques-container">
+                    <div id="bloquesContainer">
+                        <p class="text-muted">Seleccione un lugar para ver sus bloques</p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="button">Crear Evento</button>
+        </form>
+    </div>
+
+    <div class="container mt-5">
+        <h2>Eventos Creados</h2>
+        <table class="table table-dark table-striped">
+            <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Tipo</th>
+        <th>Lugar</th>
+        <th>Fecha</th>
+        <th>Descripción</th>
+        <th>Imagen</th>
+        <th>Bloques</th>
+        <th>Acciones</th>
+    </tr>
+</thead>
+<tbody>
+    <% eventos.forEach(evento => { %>
+        <tr>
+            <td><%= evento.eventoId %></td>
+            <td><%= evento.nombre %></td>
+            <td><%= evento.tipo %></td>
+            <td><%= evento.lugarId %></td>
+            <td><%= new Date(evento.fecha).toLocaleString() %></td>
+            <td><%= evento.descripcion %></td>
+            <td>
+                <% if (evento.imagen) { %>
+                    <img src="<%= evento.imagen %>" alt="Imagen del evento" style="max-width: 100px; max-height: 100px;">
+                <% } else { %>
+                    Sin imagen
+                <% } %>
+            </td>
+            <td>
+                <% if (evento.bloques) { %>
+                    <%= evento.bloques %>
+                <% } else { %>
+                    Sin bloques
+                <% } %>
+            </td>
+            <td>
+<button class="btn btn-primary btn-sm" onclick="openEditModal(<%= JSON.stringify(evento) %>)">Editar</button>            </td>
+        </tr>
+    <% }) %>
+</tbody>
+        </table>
+    </div>
+
+    <div class="container mt-5">
+        <h2>Lista de Bloques</h2>
+        <table class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Tipo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% bloques.forEach(bloque => { %>
+                    <tr>
+                        <td><%= bloque.id %></td>
+                        <td><%= bloque.nombre %></td>
+                        <td><%= bloque.tipo %></td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="openEditBloqueModal(<%- JSON.stringify(bloque) %>)">Editar</button>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="container mt-5">
+        <h2>Lista de Asientos</h2>
+        <table class="table table-dark table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Bloque ID</th>
+                    <th>Cantidad</th>
+                    <th>Tipo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% asientos.forEach(asiento => { %>
+                    <tr>
+                        <td><%= asiento.id %></td>
+                        <td><%= asiento.bloqueId %></td>
+                        <td><%= asiento.cantidad %></td>
+                        <td><%= asiento.tipo %></td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="openEditAsientoModal(<%- JSON.stringify(asiento) %>)">Editar</button>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editEventModalLabel">Editar Evento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editEventForm">
+                    <input type="hidden" id="editEventoId">
+                    <div class="mb-3">
+                        <label for="editNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editNombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editTipo" class="form-label">Tipo</label>
+                        <select class="form-select" id="editTipo" required>
+                            <option value="concierto">Concierto</option>
+                            <option value="teatro">Teatro</option>
+                            <option value="deportivo">Deportivo</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editLugar" class="form-label">Lugar</label>
+                        <input type="text" class="form-control" id="editLugar" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editFecha" class="form-label">Fecha</label>
+                        <input type="datetime-local" class="form-control" id="editFecha" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="editDescripcion" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editLugarModal" tabindex="-1" aria-labelledby="editLugarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editLugarModalLabel">Editar Lugar</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editLugarForm">
+                    <input type="hidden" id="editLugarId">
+                    <div class="mb-3">
+                        <label for="editLugarNombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editLugarNombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editLugarDireccion" class="form-label">Dirección</label>
+                        <input type="text" class="form-control" id="editLugarDireccion">
+                    </div>
+                    <div class="mb-3">
+                        <label for="editLugarDescripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="editLugarDescripcion" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editLugarCapacidad" class="form-label">Capacidad</label>
+                        <input type="number" class="form-control" id="editLugarCapacidad" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function openEditLugarModal(lugar) {
+        document.getElementById('editLugarId').value = lugar.id;
+        document.getElementById('editLugarNombre').value = lugar.nombre;
+        document.getElementById('editLugarDireccion').value = lugar.direccion;
+        document.getElementById('editLugarDescripcion').value = lugar.descripcion;
+        document.getElementById('editLugarCapacidad').value = lugar.capacidad;
+
+        const modal = new bootstrap.Modal(document.getElementById('editLugarModal'));
+        modal.show();
+    }
+
+    // Similar lógica para bloques y asientos
+</script>
+<script>
+    function openEditModal(evento) {
+        document.getElementById('editEventoId').value = evento.eventoId;
+        document.getElementById('editNombre').value = evento.nombre;
+        document.getElementById('editTipo').value = evento.tipo;
+        document.getElementById('editLugar').value = evento.lugarId;
+        document.getElementById('editFecha').value = new Date(evento.fecha).toISOString().slice(0, 16);
+        document.getElementById('editDescripcion').value = evento.descripcion;
+
+        const modal = new bootstrap.Modal(document.getElementById('editEventModal'));
+        modal.show();
+    }
+
+    document.getElementById('editEventForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const eventoId = document.getElementById('editEventoId').value;
+        const updatedData = {
+            nombre: document.getElementById('editNombre').value,
+            tipo: document.getElementById('editTipo').value,
+            lugarId: document.getElementById('editLugar').value,
+            fecha: document.getElementById('editFecha').value,
+            descripcion: document.getElementById('editDescripcion').value,
+        };
+
+        fetch(`/evento/editar/${eventoId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData),
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Evento actualizado exitosamente');
+                    location.reload();
+                } else {
+                    alert('Error al actualizar el evento');
+                }
+            })
+            .catch(error => {
+                alert('Error al actualizar el evento');
+            });
+    });
+</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function mostrarModal(titulo, mensaje) {
-            document.getElementById("modal-titulo").innerText = titulo;
-            document.getElementById("modal-mensaje").innerText = mensaje;
-            document.getElementById("modal").style.display = "block";
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar lugares al iniciar
+            fetch('/evento/lugares')
+                .then(response => response.json())
+                .then(lugares => {
+                    const select = document.getElementById('lugar');
+                    lugares.forEach(lugar => {
+                        const option = document.createElement('option');
+                        option.value = lugar.lugarId;
+                        option.textContent = lugar.nombre;
+                        select.appendChild(option);
+                    });
+                });
+    
+            // Manejar cambio de lugar
+            document.getElementById('lugar').addEventListener('change', function() {
+                const lugarId = this.value;
+                if (!lugarId) {
+                    document.getElementById('lugarInfo').classList.add('d-none');
+                    document.getElementById('bloquesContainer').innerHTML = 
+                        '<p class="text-muted">Seleccione un lugar para ver sus bloques</p>';
+                    return;
+                }
+    
+                // Obtener información del lugar seleccionado
+                fetch(`/evento/lugares/${lugarId}`)
+                    .then(response => response.json())
+                    .then(lugar => {
+                        // Mostrar información del lugar
+                        document.getElementById('lugarNombre').textContent = lugar.nombre;
+                        document.getElementById('lugarCapacidad').textContent = `Capacidad: ${lugar.capacidad}`;
+                        document.getElementById('lugarDireccion').textContent = lugar.direccion || 'Sin dirección especificada';
+                        document.getElementById('lugarImagen').src = lugar.imagen || '/img/default-place.png';
+                        document.getElementById('lugarInfo').classList.remove('d-none');
+                    });
+    
+                // Obtener bloques del lugar
+                fetch(`/evento/bloques/${lugarId}`)
+                    .then(response => response.json())
+                    .then(bloques => {
+                        const container = document.getElementById('bloquesContainer');
+                        container.innerHTML = '';
+    
+                        if (bloques.length === 0) {
+                            container.innerHTML = '<p class="text-muted">Este lugar no tiene bloques definidos</p>';
+                            return;
+                        }
+    
+                        bloques.forEach(bloque => {
+                            const bloqueDiv = document.createElement('div');
+                            bloqueDiv.className = 'mb-3';
+                            bloqueDiv.innerHTML = `
+                                <div class="row align-items-center">
+                                    <div class="col-md-4">
+                                        <label class="form-label">${bloque.nombre} (${bloque.tipo})</label>
+                                        <small class="text-muted d-block">Asientos: ${bloque.cantidad}</small>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="input-group">
+                                            <span class="input-group-text">$</span>
+                                            <input type="number" min="0" step="0.01" 
+                                                class="form-control precio-input" 
+                                                data-bloque-id="${bloque.bloqueId}"
+                                                placeholder="Precio">
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                            `;
+                            container.appendChild(bloqueDiv);
+                        });
+                    });
+            });
+    
+            // Manejar envío del formulario
+            // Modifica la función de envío del formulario
+document.getElementById('eventoForm').addEventListener('submit', function(e) {
+    e.preventDefault();
 
-        function cerrarModal() {
-            document.getElementById("modal").style.display = "none";
+    // Crear FormData en lugar de JSON
+    const formData = new FormData();
+    const imagenInput = document.getElementById('imagenEvento');
+    
+    // Agregar datos del formulario
+    formData.append('nombre', document.getElementById('nombre').value);
+    formData.append('tipo', document.getElementById('tipo').value);
+    formData.append('lugarId', document.getElementById('lugar').value);
+    formData.append('fecha', document.getElementById('fecha').value);
+    formData.append('descripcion', document.getElementById('descripcion').value);
+    
+    // Agregar archivo de imagen si existe
+    if (imagenInput.files[0]) {
+        formData.append('imagen', imagenInput.files[0]);
+    }
+
+    // Recolectar precios
+    const precios = [];
+    document.querySelectorAll('.precio-input').forEach(input => {
+        const bloqueId = input.dataset.bloqueId;
+        const valor = parseFloat(input.value) || 0;
+        precios.push({ bloqueId, valor });
+    });
+    formData.append('precios', JSON.stringify(precios));
+
+    // Enviar datos al servidor
+    fetch('/evento/crear', {
+        method: 'POST',
+        body: formData // No establezcas Content-Type, el navegador lo hará automáticamente
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Evento creado exitosamente!');
+            window.location.href = '/eventos';
+        } else {
+            alert(`Error: ${data.message}`);
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al crear el evento');
+    });
+});
+        });
     </script>
-</head>
-<body>
-    <section class="event-detail">
-        <div class="left-column">
-            <img class="event-image" src="<%= evento.imagen %>" alt="<%= evento.nombre %>">
-        </div>
-
-        <div class="right-column">
-            <h1><%= evento.nombre %></h1>
-
-            <!-- Cuadro de información del evento -->
-            <div class="event-info-box">
-                <p><strong>Fecha y Hora:</strong> <%= evento.fecha %></p>
-                <p><strong>Ubicación:</strong> Estadio Nacional, San José, Costa Rica</p>
-            </div>
-
-            <!-- Botones para "Detalle" y "Términos y Condiciones" -->
-            <button class="info-btn" onclick="mostrarModal('Detalle', 'Este evento es parte de la gira mundial de <%= evento.nombre %>, visitando Costa Rica por primera vez en 5 años.')">Detalle</button>
-            <button class="info-btn" onclick="mostrarModal('Términos y Condiciones', 'Apertura de puertas: 18:00\n\nZona de discapacitados será asignada el día del evento por el personal a cargo.\n\nMenores de 12 años acompañados por un adulto.\n\nNo se permiten cigarros, vaporizadores, etc.')">Términos y Condiciones</button>
-
-            <!-- Modal -->
-            <div id="modal" class="modal">
-                <div class="modal-content">
-                    <span class="close" onclick="cerrarModal()">&times;</span>
-                    <h2 id="modal-titulo"></h2>
-                    <p id="modal-mensaje"></p>
-                </div>
-            </div>
-
-            <!-- Imagen de mapa de asientos y precios -->
-            <h2>Ubicación de Asientos</h2>
-            <div class="seat-container">
-                <img class="seat-map" src="/img/mapa-asientos.png" alt="Mapa de asientos">
-                <div class="asientos-container">
-                    <p>🟣 Sombra Este - ₡45000</p>
-                    <p>🟢 Palco Este - ₡50000</p>
-                    <p>🌸 Platea Este - ₡55000</p>
-                    <p>🟢 Sombra Oeste - ₡45000</p>
-                    <p>🟡 Palco Oeste - ₡50000</p>
-                    <p>🍈 Platea Oeste - ₡55000</p>
-                    <p>🟣 Gradería Norte - ₡50000</p>
-                    <p>🔴 Gradería Sur - ₡50000</p>
-                    <p>🌊 VIP Nitro Pit 1 - ₡80000</p>
-                    <p>🟤 VIP Nitro Pit 2 - ₡80000</p>
-                </div>
-            </div>
-
-            <!-- Formulario de compra -->
-            <form action="/carrito" method="POST">
-                <input type="hidden" name="nombre" value="<%= evento.nombre %>">
-                <input type="hidden" name="fecha" value="<%= evento.fecha %>">
-                <input type="hidden" name="horario" value="<%= evento.horario %>">
-                <input type="hidden" name="ubicacion" value="Estadio Nacional, San José, Costa Rica">
-            
-                <label for="zona">Selecciona tu zona:</label>
-                <select id="zona" name="zona" required>
-                    <option value="sombra-este">Sombra Este - ₡45000</option>
-                    <option value="palco-este">Palco Este - ₡50000</option>
-                    <option value="platea-este">Platea Este - ₡55000</option>
-                    <option value="sombra-oeste">Sombra Oeste - ₡45000</option>
-                    <option value="palco-oeste">Palco Oeste - ₡50000</option>
-                    <option value="platea-oeste">Platea Oeste - ₡55000</option>
-                    <option value="graderia-norte">Gradería Norte - ₡50000</option>
-                    <option value="graderia-sur">Gradería Sur - ₡50000</option>
-                    <option value="vip-nitro-1">VIP Nitro Pit 1 - ₡80000</option>
-                    <option value="vip-nitro-2">VIP Nitro Pit 2 - ₡80000</option>
-                </select>
-            
-                <label for="cantidad">Cantidad de tiquetes:</label>
-                <input type="number" id="cantidad" name="cantidad" min="1" required>
-            
-                <button type="submit" class="buy-btn">Añadir al Carrito</button>
-            </form>
-        </div>
-    </section>
 </body>
 </html>

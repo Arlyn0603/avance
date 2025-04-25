@@ -141,8 +141,8 @@ router.post("/verificarCodigo", async (req, res) => {
         // 3. Buscar al usuario usando el email de la sesión
         const pool = await poolPromise;
         const result = await pool.request()
-            .input("email", sql.VarChar, req.session.email)
-            .query("SELECT id, CorreoElectronico, Nombres, Apellidos FROM Usuarios WHERE CorreoElectronico = @email");
+            .input("email", sql.VarChar, req.session.email)  // Cambiar 'email' por 'req.session.email'
+            .query("SELECT id, CorreoElectronico, Nombres, Apellidos, tipo FROM Usuarios WHERE CorreoElectronico = @email");
 
         if (result.recordset.length === 0) {
             // Esto NO debería ocurrir si el login fue exitoso
@@ -158,8 +158,10 @@ router.post("/verificarCodigo", async (req, res) => {
             id: user.id,
             email: user.CorreoElectronico,
             firstName: user.Nombres,
-            lastName: user.Apellidos
+            lastName: user.Apellidos,
+            tipo: user.tipo  // Asegúrate de incluir esto
         };
+        
 
         // 5. Limpiar datos temporales
         delete req.session.verificationCode;
@@ -230,7 +232,7 @@ router.post('/solicitar-recuperacion', async (req, res) => {
             `);
         
         // 4. Crear enlace de recuperación
-        const resetLink = `http://localhost:3005/usuarios/recuperar-contrasena?token=${token}`;
+        const resetLink = `http://localhost:3003/usuarios/recuperar-contrasena?token=${token}`;
         
         // 5. Configurar y enviar el correo
         const mailOptions = {
@@ -367,6 +369,127 @@ router.post('/actualizar-contrasena', async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: "Error al actualizar la contraseña" 
+        });
+    }
+});
+//Cambiar la contraseña del usuario logueado
+router.post("/usuario/enviar-codigo", async (req, res) => {
+    try {
+        const { firstName, lastName, provincia, password } = req.body;
+        const email = req.session.user.email; // El correo es la PK y no se puede cambiar
+
+        // Generar un código de verificación de 6 dígitos
+        const verificationCode = Math.floor(100000 + Math.random() * 900000);
+        req.session.verificationCode = verificationCode;
+
+        // Enviar el correo con el código de verificación
+        const success = await enviarCorreo(email, verificationCode.toString());
+        if (!success) {
+            return res.status(500).json({ success: false, message: "Error al enviar el código de verificación." });
+        }
+
+        // Guardar los datos en la sesión temporalmente
+        req.session.updateData = { firstName, lastName, provincia, password };
+
+        res.status(200).json({ success: true, message: "Código enviado a tu correo para verificar." });
+    } catch (err) {
+        console.error("Error al enviar el código de verificación:", err);
+        res.status(500).json({ success: false, message: "Error interno del servidor." });
+    }
+});
+
+router.post("/usuario/verificar-codigo", async (req, res) => {
+    try {
+        const { code } = req.body;
+
+        // Verificar si el código coincide
+        if (parseInt(code) !== req.session.verificationCode) {
+            return res.status(400).json({ success: false, message: "El código de verificación es incorrecto." });
+        }
+
+        const { firstName, lastName, provincia, password } = req.session.updateData;
+        const email = req.session.user.email; // El correo es la PK
+
+        // Actualizar los datos en la base de datos
+        const pool = await poolPromise;
+        const request = pool.request();
+        request.input("Email", sql.VarChar, email);
+        request.input("FirstName", sql.VarChar, firstName);
+        request.input("LastName", sql.VarChar, lastName);
+        request.input("Provincia", sql.VarChar, provincia);
+        request.input("Password", sql.VarChar, password || null);
+        await request.execute("ActualizarUsuario");
+
+        // Actualizar los datos en la sesión
+        req.session.user.firstName = firstName;
+        req.session.user.lastName = lastName;
+        req.session.user.provincia = provincia;
+
+        // Limpiar los datos temporales de la sesión
+        delete req.session.verificationCode;
+        delete req.session.updateData;
+
+        res.status(200).json({ success: true, message: "Información actualizada exitosamente." });
+    } catch (err) {
+        console.error("Error al verificar el código y guardar los cambios:", err);
+        res.status(500).json({ success: false, message: "Error interno del servidor." });
+    }
+});
+
+// Ruta para mostrar formulario de login específico para lectores
+router.get('/login-lector', (req, res) => {
+    const redirectUrl = req.query.redirect || '/';
+    res.render('login-lector', { 
+        redirectUrl: redirectUrl,
+        errorMessage: null 
+    });
+});
+
+// Ruta para procesar login de lectores
+router.post('/login-lector', async (req, res) => {
+    const { email, password, redirectUrl } = req.body;
+    
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request()
+            .input('email', sql.VarChar, email)
+            .query('SELECT * FROM Usuarios WHERE CorreoElectronico = @email');
+        
+        if (result.recordset.length === 0) {
+            return res.render('login-lector', { 
+                redirectUrl: redirectUrl,
+                errorMessage: 'Usuario no encontrado' 
+            });
+        }
+        
+        const user = result.recordset[0];
+        
+       
+        
+        // Verificar que el usuario sea de tipo "Lector"
+        if (user.tipo !== "Lector") {
+            return res.render('login-lector', { 
+                redirectUrl: redirectUrl,
+                errorMessage: 'Solo usuarios de tipo "Lector" pueden validar entradas' 
+            });
+        }
+        
+        // Establecer sesión
+        req.session.user = {
+            id: user.id,
+            email: user.email,
+            nombre: user.nombre,
+            tipo: user.tipo
+        };
+        
+        // Redirigir a la URL original (que incluye el token QR)
+        res.redirect(redirectUrl || '/');
+        
+    } catch (error) {
+        console.error('Error en login:', error);
+        res.render('login-lector', { 
+            redirectUrl: redirectUrl,
+            errorMessage: 'Error al iniciar sesión' 
         });
     }
 });

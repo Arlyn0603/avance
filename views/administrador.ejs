@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Administrador</title>
+    <link rel="stylesheet" href="/css/usuario.css">
+    <link rel="stylesheet" href="/css/estilos.css">
+    <link rel="stylesheet" href="/css/carrito.css">
+    <link rel="stylesheet" href="/css/secciones.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+    <section class="principal">
+        <!-- Header -->
+        <header class="header">
+            <a href="/" class="logo">
+                <img src="/img/logo.png" alt="EasyTicket">
+            </a>
+            <% if (user) { %>
+                <% if (user.tipo === 'Admin') { %>
+                    <!-- Header para Admin -->
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/administrador">
+                                <img src="/img/user.png" alt="Administrador">
+                            </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } else { %>
+                    <!-- Header para Cliente -->
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/usuario">
+                                <img src="/img/user.png" alt="Usuario">
+                            </a><span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <!-- Header para usuarios no autenticados -->
+                <button class="search-btn" onclick="toggleSearchSection()">
+                    <img src="/img/lupa.png" alt="Buscar" width="20">
+                </button>
+                <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
+            <% } %>
+            
+        </header>
+
+
+        <!-- Contenedor del perfil -->
+        <div class="profile-container">
+            <!-- Imagen de usuario -->
+            <div class="profile-image">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            <!-- Nombre de usuario -->
+            <span id="profileEmail"><%= user.firstName %></span>
+
+            <!-- Opciones de perfil -->
+            <div class="profile-options">
+                <a href="/preventa-admin" class="profile-option">
+                    <i class="fa-solid fa-calendar-plus"></i> Preventa
+                </a>
+                <a href="/edificaciones" class="profile-option">
+                    <i class="fa-solid fa-building"></i> Crear edificaciones
+                </a>
+                <a href="/evento/crear" class="profile-option">
+                    <i class="fa-solid fa-calendar-plus"></i> Crear evento
+                </a>
+                <a href="/configuracion" class="profile-option">
+                    <i class="fa-solid fa-users"></i> Gestion de usuarios
+                </a>
+                <a href="/analisis" class="profile-option">
+                    <i class="fa-solid fa-chart-line"></i> Análisis y Reportes
+                </a>
+                <a href="/logout" class="profile-option">
+                    <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+                </a>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

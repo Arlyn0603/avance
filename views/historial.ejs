@@ -25,24 +25,38 @@
                 <a href="#">Festivales</a>
             </nav>
             <% if (user) { %>
-                <!-- Botón de perfil (visible cuando el usuario está autenticado) -->
-                <div class="profile-dropdown">
-                    <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
-                        <img src="/img/user.png" alt="Perfil">
-                        <span id="profileEmail"><%= user.email %></span> <!-- Mostrar el correo aquí -->
-                    </button>
-                    <div class="dropdown-menu" id="dropdownMenu">
-                        <a href="/historial">Historial</a> <!-- Cambiado de "Perfil" a "Historial" -->
-                        <a href="/billetera">Billetera</a>
-                        <a href="/atencion/tickets/vista">Mis Tickets</a>
-                        <a href="/logout">Cerrar sesión</a>
+                <% if (user.tipo === 'Admin') { %>
+                    <!-- Header para Admin -->
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/administrador">
+                                <img src="/img/user.png" alt="Administrador">
+                            </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                        </button>
                     </div>
-                </div>
+                <% } else { %>
+                    <!-- Header para Cliente -->
+                    <button class="search-btn" onclick="toggleSearchSection()">
+                        <img src="/img/lupa.png" alt="Buscar" width="20">
+                    </button>
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/usuario">
+                                <img src="/img/user.png" alt="Usuario">
+                            </a><span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } %>
             <% } else { %>
-                <!-- Botón de iniciar sesión (visible cuando el usuario no está autenticado) -->
+                <!-- Header para usuarios no autenticados -->
+                <button class="search-btn" onclick="toggleSearchSection()">
+                    <img src="/img/lupa.png" alt="Buscar" width="20">
+                </button>
                 <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
             <% } %>
+            
         </header>
+
         <script>
             // Función para alternar el menú de perfil
             function toggleProfileMenu() {
@@ -91,10 +105,14 @@
                                     NombreEvento: '<%= compra.NombreEvento %>'
                                 })">
                                 Ver Compra
-                             </a>                                <button onclick="mostrarInputCancelar('<%= compra.Id %>')" 
+                             </a>                                <button class="btn-ver"  onclick="mostrarInputCancelar('<%= compra.Id %>')" 
                                     <%= compra.Estado === 'Cancelado' ? 'disabled' : '' %>>
                                 Cancelar
                             </button>
+                            
+                            <% if (compra.Estado === 'Completado') { %>
+                                <button class="btn-ver" onclick="abrirModalComentario('<%= compra.Id %>', '<%= compra.NombreEvento %>')">Agregar Comentario</button>
+                            <% } %>
                             
                             <form id="form-cancelar-<%= compra.Id %>" 
                                 class="form-cancelar" 
@@ -128,6 +146,22 @@
 
             <!-- Historial estático -->
 <h1>Historial de compras pasadas</h1>
+
+
+<!-- Modal para agregar comentario -->
+<div id="modal-comentario" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModalComentario()">&times;</span>
+        <h2>Agregar Comentario</h2>
+        <form id="form-comentario" onsubmit="guardarComentario(event)">
+            <input type="hidden" id="evento-id">
+            <p><strong>Evento:</strong> <span id="evento-nombre"></span></p>
+            <textarea id="comentario-texto" placeholder="Escribe tu comentario aquí..." required></textarea>
+            <button type="submit">Guardar Comentario</button>
+        </form>
+    </div>
+</div>
+
 <div class="compra-card">
     <img src="/img/evento.jpg" alt="Coldplay" class="compra-img">
     <div class="compra-info">
@@ -180,7 +214,48 @@
             <p>&copy; 2025 EasyTicket - Todos los derechos reservados.</p>
         </footer>
     </section>
-
+    <script>
+        // Abrir el modal de comentario
+        function abrirModalComentario(eventoId, eventoNombre) {
+            document.getElementById('evento-id').value = eventoId;
+            document.getElementById('evento-nombre').textContent = eventoNombre;
+            document.getElementById('modal-comentario').style.display = 'block';
+        }
+    
+        // Cerrar el modal de comentario
+        function cerrarModalComentario() {
+            document.getElementById('modal-comentario').style.display = 'none';
+        }
+    
+        // Guardar el comentario
+        async function guardarComentario(event) {
+            event.preventDefault(); // Evitar recargar la página
+        
+            const eventoId = document.getElementById('evento-id').value;
+            const comentarioTexto = document.getElementById('comentario-texto').value;
+        
+            try {
+                const response = await fetch(`/comentarios/agregar/${eventoId}`, { // URL corregida
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ comentario: comentarioTexto }),
+                });
+        
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message);
+                }
+        
+                alert('Comentario guardado exitosamente.');
+                cerrarModalComentario();
+            } catch (err) {
+                console.error('Error al guardar el comentario:', err);
+                alert('Ocurrió un error al guardar el comentario.');
+            }
+        }
+    </script>
     <script>
          function abrirModal(compra) {
         // Cargar los datos en el modal
@@ -277,6 +352,52 @@ function updateUIAfterCancel(id) {
             `button[onclick="mostrarInputCancelar('${id}')"]`
         );
         if (cancelButton) cancelButton.disabled = true;
+    }
+}
+
+// Función para abrir el modal de comentario
+function abrirModalComentario(id, nombreEvento) {
+    document.getElementById("evento-id").value = id;
+    document.getElementById("evento-nombre").textContent = nombreEvento;
+    document.getElementById("modal-comentario").style.display = "block";
+}
+
+// Función para cerrar el modal de comentario
+function cerrarModalComentario() {
+    document.getElementById("modal-comentario").style.display = "none";
+}
+
+// Función para guardar el comentario
+async function guardarComentario(event) {
+    event.preventDefault();
+
+    const id = document.getElementById("evento-id").value;
+    const comentario = document.getElementById("comentario-texto").value.trim();
+
+    if (!comentario) {
+        alert("El comentario no puede estar vacío.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`/comentarios/agregar/${id}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ comentario }),
+        });
+
+        if (response.ok) {
+            alert("Comentario guardado exitosamente.");
+            cerrarModalComentario();
+        } else {
+            const error = await response.json();
+            alert(`Error al guardar el comentario: ${error.message}`);
+        }
+    } catch (err) {
+        console.error("Error al guardar el comentario:", err);
+        alert("Ocurrió un error al guardar el comentario.");
     }
 }
     </script>

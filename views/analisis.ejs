@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Easy Ticket</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+    <link rel="stylesheet" href="/css/secciones.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <link rel="stylesheet" href="/css/billetera.css">
+    <link rel="stylesheet" href="/css/analisis.css">
+</head>
+<body>
+    <section class="principal">
+        <header class="header">
+            <a href="/" class="logo">
+                <img src="/img/logo.png" alt="EasyTicket">
+            </a>
+            <nav class="nav">
+                <a href="#">Conciertos</a>
+                <a href="#">Deportes</a>
+                <a href="#">Teatro</a>
+                <a href="#">Culturales</a>
+                <a href="#">Comedia</a>
+                <a href="#">Festivales</a>
+            </nav>
+            <% if (user) { %>
+                <% if (user.tipo === 'Admin') { %>
+                    <!-- Header para Admin -->
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/administrador">
+                                <img src="/img/user.png" alt="Administrador">
+                            </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } else { %>
+                    <!-- Header para Cliente -->
+                    <button class="search-btn" onclick="toggleSearchSection()">
+                        <img src="/img/lupa.png" alt="Buscar" width="20">
+                    </button>
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/usuario">
+                                <img src="/img/user.png" alt="Usuario">
+                            </a><span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <!-- Header para usuarios no autenticados -->
+                <button class="search-btn" onclick="toggleSearchSection()">
+                    <img src="/img/lupa.png" alt="Buscar" width="20">
+                </button>
+                <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
+            <% } %>
+            
+        </header>
+ <h1>Análisis de Comportamiento de Usuarios</h1>
+
+<h2>Páginas más visitadas</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Ruta</th>
+            <th>Visitas</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% paginas.forEach(pagina => { %>
+            <tr>
+                <td><%= pagina.ruta %></td>
+                <td><%= pagina.visitas %></td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<h2>Usuarios más activos</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Eventos</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% usuarios.forEach(usuario => { %>
+            <tr>
+                <td><%= usuario.usuario %></td>
+                <td><%= usuario.eventos %></td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<h2>Actividad por Fecha</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Fecha</th>
+            <th>Eventos</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% actividad.forEach(dia => { %>
+            <tr>
+                <td><%= dia.fecha %></td>
+                <td><%= dia.eventos %></td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<h1>Reporte Financiero</h1>
+
+<h2>Ingresos por Evento</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Evento</th>
+            <th>Ubicación</th>
+            <th>Entradas Vendidas</th>
+            <th>Ingresos Totales</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% ingresos.forEach(ingreso => { %>
+            <tr>
+                <td><%= ingreso.Evento %></td>
+                <td><%= ingreso.Ubicacion %></td>
+                <td><%= ingreso.EntradasVendidas %></td>
+                <td>$<%= ingreso.IngresosTotales.toFixed(2) %></td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>
+
+<h2>Total General</h2>
+<p><strong>Total de Entradas Vendidas:</strong> <%= total.TotalEntradas %></p>
+<p><strong>Total de Ingresos:</strong> ₡<%= total.TotalIngresos.toFixed(2) %></p>
+
+<h1>Feedback Cliente</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Evento</th>
+            <th>Comentario</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <% comentarios.forEach(comentario => { %>
+            <tr>
+                <td><%= comentario.NombreEvento %></td>
+                <td><%= comentario.Comentario %></td>
+                <td><%= comentario.Fecha %></td>
+            </tr>
+        <% }) %>
+    </tbody>
+</table>
+</body>
+</html>

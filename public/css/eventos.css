@@ -164,3 +164,73 @@ footer {
     background-color: #111;
     color: #fff;
 }
+
+/* Estilos para pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+    .event-detail {
+        flex-direction: column; /* Apilar columnas verticalmente */
+        padding: 1rem; /* Reducir padding */
+        gap: 1rem; /* Reducir espacio entre columnas */
+    }
+
+    .left-column,
+    .right-column {
+        flex: 1; /* Ambas columnas ocupan el mismo ancho */
+    }
+
+    .event-image {
+        width: 100%; /* Imagen ocupa todo el ancho */
+        height: auto;
+    }
+
+    .event-info-box {
+        padding: 0.8rem; /* Reducir padding */
+    }
+
+    .info-btn {
+        width: 100%; /* Botones ocupan todo el ancho */
+        margin-bottom: 1rem; /* Espacio entre botones */
+    }
+
+    .modal-content {
+        width: 90%; /* Modal ocupa casi todo el ancho */
+        padding: 1.5rem; /* Reducir padding */
+    }
+
+    form {
+        padding: 1rem; /* Reducir padding */
+    }
+
+    form button.buy-btn {
+        font-size: 0.9rem; /* Reducir tamaño de fuente */
+        padding: 0.8rem; /* Ajustar padding */
+    }
+}
+
+/* Estilos para pantallas medianas (tablets) */
+@media (max-width: 1024px) {
+    .event-detail {
+        gap: 1.5rem; /* Ajustar espacio entre columnas */
+    }
+
+    .event-info-box {
+        padding: 1rem; /* Ajustar padding */
+    }
+
+    .info-btn {
+        padding: 0.8rem 1.2rem; /* Ajustar tamaño de botones */
+    }
+
+    .modal-content {
+        width: 85%; /* Modal ocupa más espacio */
+    }
+
+    form {
+        padding: 1.2rem; /* Ajustar padding */
+    }
+
+    form button.buy-btn {
+        font-size: 1rem; /* Ajustar tamaño de fuente */
+        padding: 0.9rem; /* Ajustar padding */
+    }
+}

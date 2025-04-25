@@ -1,0 +1,186 @@
+/* detalles-evento.css */
+
+/* — Reset básico y tipografía — */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html, body {
+  height: 100%;
+  background: #000;
+  color: #fff;
+  font-family: Arial, sans-serif;
+}
+
+/* — Grid principal: evento a la izquierda (más ancho), lugar y bloques a la derecha — */
+.container.py-4 {
+  display: grid;
+  grid-template-areas:
+    "header  header"
+    "event   place"
+    "event   blocks";
+  grid-template-columns: 1fr 2fr;  /* Dar más espacio a las columnas de la derecha */
+  grid-auto-rows: auto;
+  gap: 1rem;
+  padding: 2rem 1rem;
+  background: #000;
+}
+
+/* — Asignación de áreas — */
+.container.py-4 > .evento-header    { grid-area: header; }
+.container.py-4 > .info-card.evento  { grid-area: event; }
+.container.py-4 > .info-card.lugar   { grid-area: place; }
+.container.py-4 > .info-card.bloques { grid-area: blocks; }
+
+/* Limitar el ancho máximo de la sección del evento */
+.container.py-4 > .info-card.evento {
+  max-width: 500px; /* Reducir el ancho máximo */
+  margin: 0; /* Eliminar centrado para alinearlo más a la izquierda */
+}
+
+/* — Estilos comunes para header y tarjetas — */
+.evento-header,
+.info-card {
+  background: #111;
+  border: none;
+  border-radius: 10px;
+  padding: 1.5rem;
+}
+
+/* — Encabezados verdes — */
+.evento-header h1,
+.info-card h3,
+.info-card h4 {
+  color: #C1FF00;
+  margin-bottom: .75rem;
+}
+
+/* — Contenido de .evento: fila convertida en grid para imagen/texto — */
+.info-card.evento .row {
+  display: flex;
+  flex-direction: column; /* Cambiar a diseño vertical */
+  gap: 1.5rem; /* Espaciado entre la imagen y la información */
+}
+
+/* — Imagen del evento (ahora a gran tamaño) — */
+.info-card.evento .evento-imagen {
+  width: 100%; /* Mantener el ancho completo del contenedor */
+  max-height: 300px; /* Limitar la altura máxima */
+  object-fit: cover; /* Ajustar la imagen sin distorsión */
+  border-radius: 8px;
+  display: block;
+}
+
+/* — Botones — */
+.btn, button {
+  background: #C1FF00 !important;
+  color: #000 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: .5rem 1rem !important;
+  font-weight: bold;
+  transition: background-color .2s;
+}
+.btn:hover, button:hover {
+  background: #AEF200 !important;
+}
+
+/* — Lugar del Evento: quitar bordes internos blancos — */
+#lugarInfo .row.g-0 { border: none !important; }
+#lugarInfo .rounded { border: none !important; }
+
+/* — Imágenes dentro de cualquier tarjeta — */
+.info-card img {
+  background: none !important;
+  display: block;
+  max-width: 100%;
+  border-radius: 5px;
+}
+
+/* — Bloque‑card específico — */
+.bloque-card {
+  background: #111;
+  border: none;
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  position: relative;
+}
+.bloque-card h5 {
+  color: #C1FF00;
+  margin-bottom: .5rem;
+}
+.bloque-card + .bloque-card {
+  border-left: 2px solid #C1FF00; /* Línea divisoria verde */
+  padding-left: 1rem; /* Espaciado después de la línea */
+  margin-left: 1rem; /* Espaciado entre los bloques */
+}
+
+/* — Mapa de asientos y mensajes — */
+.seat-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30px,1fr));
+  gap: 6px;
+  margin: 1rem 0;
+}
+.seat {
+  position: relative;
+  padding-top: 100%;
+  border-radius: 4px;
+  cursor: pointer;
+  border: none; /* Elimina cualquier borde */
+  background: #C1FF00; /* Color de fondo para los asientos disponibles */
+  color: #000; /* Cambia el color del texto a negro */
+}
+.seat.available { background: #C1FF00; }
+.seat.selected  { background: #AEF200; color: #000; /* Asegúrate de que el texto también sea negro */ }
+.seat.aisle     { visibility: hidden; }
+.seat span {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  font-size: .75rem;
+  color: #000; /* Cambia el color del texto a negro */
+  font-weight: bold; /* Opcional: hacer los números más visibles */
+}
+.max-seats-message       { color: #dc3545; font-weight: bold; }
+.available-seats-message { color: #28a745; margin-bottom: .5rem; }
+.selected-seats {
+  background: #222;
+  border: none;
+  border-radius: 5px;
+  padding: .5rem;
+  margin-bottom: .5rem;
+}
+
+/* — Modal — */
+.modal-content,
+.modal-header,
+.modal-body,
+.modal-footer {
+  background: #111;
+  color: #fff;
+  border: none;
+}
+.modal-title { color: #C1FF00; }
+
+/* — Responsive: en pantallas pequeñas apilar todo — */
+@media (max-width: 991px) {
+  .container.py-4 {
+    grid-template-areas:
+      "header"
+      "event"
+      "place"
+      "blocks";
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Línea divisoria verde */
+.divider-green {
+  border: 0;
+  height: 2px;
+  background: #C1FF00; /* Verde brillante */
+  margin: 1rem 0;
+}

@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Preventa - EasyTicket</title>
+    <link rel="stylesheet" href="/css/estilos.css">
+    <link rel="stylesheet" href="/css/admin.css">
+    <!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+   <style>
+    body {
+        background-color: #111;
+        color: #aaff00;
+        font-family: Arial, sans-serif;
+    }
+
+    .admin-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: auto;
+        background-color: #1b1b1b;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #64DD17;
+    }
+
+    h1, h2, h3, h4, h5 {
+        color: #aaff00;
+    }
+
+    .btn-buscar,
+    .btn-actualizar,
+    button {
+        background-color: #64DD17;
+        color: black;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-buscar:hover,
+    .btn-actualizar:hover,
+    button:hover {
+        background-color: #45a029;
+        color: white;
+    }
+
+    .filtros-container {
+        background-color: #222;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #64DD17;
+        margin-bottom: 20px;
+    }
+
+    .filtro-group {
+        margin-bottom: 15px;
+    }
+
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: #aaff00;
+    }
+
+    select, input[type="number"], input[type="date"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #64DD17;
+        background-color: #1e1e1e;
+        color: #aaff00;
+    }
+
+    .evento-card {
+        background-color: #1c1c1c;
+        border: 1px solid #45a029;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        color: #e0ffe0;
+    }
+
+    .categoria-card {
+        background-color: #2b2b2b;
+        border: 1px solid #64DD17;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+
+    .categoria-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        color: #aaff00;
+    }
+
+    .color-indicator {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 10px;
+        border: 1px solid white;
+    }
+
+    .categoria-actions {
+        margin-top: 10px;
+    }
+
+    .precio-input,
+    .cantidad-input {
+        width: 100px;
+        padding: 5px;
+        margin-right: 10px;
+        background-color: #111;
+        color: #aaff00;
+        border: 1px solid #45a029;
+        border-radius: 5px;
+    }
+
+    .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #64DD17;
+    z-index: 1000;
+}
+
+.preventa-card {
+        background-color: #2b2b2b;
+        border: 1px solid #64DD17;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .preventa-status {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+    
+    .preventa-active {
+        background-color: #2E7D32;
+        color: white;
+    }
+    
+    .preventa-inactive {
+        background-color: #c62828;
+        color: white;
+    }
+    
+    .metodos-pago {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 10px 0;
+    }
+    
+    .metodo-pago-chip {
+        background-color: #1b5e20;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 0.9em;
+    }
+</style>
+</head>
+<body>
+    <header class="header">
+        <a href="/" class="logo">
+            <img src="/img/logo.png" alt="EasyTicket">
+        </a>
+        <% if (user) { %>
+            <% if (user.tipo === 'Admin') { %>
+                <div class="profile-dropdown">
+                    <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                        <a href="/administrador">
+                            <img src="/img/user.png" alt="Administrador">
+                        </a>
+                        <span id="profileEmail"><%= user.firstName %></span>
+                    </button>
+                </div>
+            <% } else { %>
+                <div class="profile-dropdown">
+                    <button class="search-btn" onclick="toggleSearchSection()">
+                        <img src="/img/lupa.png" alt="Buscar" width="20">
+                    </button>
+                    <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                        <a href="/usuario">
+                            <img src="/img/user.png" alt="Usuario">
+                        </a>
+                        <span id="profileEmail"><%= user.firstName %></span>
+                    </button>
+                </div>
+            <% } %>
+        <% } else { %>
+            <button class="search-btn" onclick="toggleSearchSection()">
+                <img src="/img/lupa.png" alt="Buscar" width="20">
+            </button>
+            <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
+        <% } %>
+    </header>
+    
+    <div class="admin-container">
+        <h1>Gestión de Preventa</h1>
+        
+<!-- Sección de configuración de preventa -->
+
+
+        <div class="filtros-container">
+            <h2>Filtrar Eventos</h2>
+            <form id="filtroEventosForm">
+                <div class="filtro-group">
+                    <label for="filtroTipo">Tipo de Evento:</label>
+                    <select id="filtroTipo" name="tipo">
+                        <option value="">Todos</option>
+                        <option value="Concierto">Concierto</option>
+                        <option value="Deporte">Deporte</option>
+                        <option value="Teatro">Teatro</option>
+                    </select>
+                </div>
+                
+                <div class="filtro-group">
+                    <label for="filtroPrecio">Precio Máximo:</label>
+                    <input type="number" id="filtroPrecio" name="precioMax" placeholder="Máximo ₡">
+                </div>
+                
+                <div class="filtro-group">
+                    <label for="filtroFecha">Fecha:</label>
+                    <input type="date" id="filtroFecha" name="fecha">
+                </div>
+                
+                <div class="filtro-group">
+                    <label for="filtroLugar">Lugar:</label>
+                    <select id="filtroLugar" name="lugar">
+                        <option value="">Todos</option>
+                        <% lugares.forEach(lugar => { %>
+                            <option value="<%= lugar.id %>"><%= lugar.nombre %></option>
+                        <% }); %>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-buscar">Buscar</button>
+            </form>
+        </div>
+        
+        <div id="resultadosEventos">
+            <% eventos.forEach(evento => { %>
+                <div class="evento-card" data-id="<%= evento.eventoId %>">
+                    <h3><%= evento.nombre %></h3>
+                    <p><strong>Tipo:</strong> <%= evento.tipo %></p>
+                    <p><strong>Fecha:</strong> <%= new Date(evento.fecha).toLocaleDateString() %></p>
+                    <p><strong>Lugar:</strong> <%= evento.lugarNombre %></p>
+                    
+                    <button class="btn-actualizar" onclick="abrirModalPreventa('<%= evento.eventoId %>, <%= evento.nombre %>')">
+                        Crear Preventa
+                    </button>
+                    
+                    <h4>Categorías de Boletos</h4>
+                    <div id="categorias-<%= evento.eventoId %>" class="categorias-container">
+                        <!-- Las categorías se cargarán dinámicamente -->
+                        <p>Cargando categorías...</p>
+                    </div>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+
+ 
+
+<script>
+
+function abrirModalPreventa(eventoId, nombreEvento) {
+    document.getElementById("eventoId").value = eventoId;
+    document.getElementById("tituloEventoModal").innerText = nombreEvento;
+    const modal = new bootstrap.Modal(document.getElementById("preventaModal"));
+    modal.show();
+}
+
+    // Cargar datos de preventa al abrir la página
+    document.addEventListener('DOMContentLoaded', async () => {
+        const eventoId = document.querySelector('.evento-card')?.dataset.id;
+        if (!eventoId) return;
+        
+        // Cargar información de preventa
+        await cargarPreventa(eventoId);
+        
+        // Configurar eventos de los botones
+        document.getElementById('btnCrearPreventa')?.addEventListener('click', () => {
+            abrirModalPreventa();
+        });
+        
+        document.getElementById('btnEditarPreventa')?.addEventListener('click', () => {
+            abrirModalPreventa();
+        });
+        
+        document.getElementById('btnGuardarPreventa').addEventListener('click', guardarPreventa);
+    });
+    
+    async function cargarPreventa(eventoId) {
+    try {
+        const response = await fetch(`/evento/preventa/${eventoId}`);
+        const data = await response.json();
+        
+        // Set the eventoId in the form
+        document.getElementById('eventoId').value = eventoId;
+        
+        if (data.preventa) {
+            // Rellenar modal si hay preventa existente
+            document.getElementById('fechaInicio').value = 
+                new Date(data.preventa.fechaInicio).toISOString().slice(0, 16);
+            document.getElementById('fechaFin').value = 
+                new Date(data.preventa.fechaFin).toISOString().slice(0, 16);
+            
+            // Marcar métodos de pago seleccionados
+            if (data.preventa.metodosPago) {
+                data.preventa.metodosPago.split(', ').forEach(metodo => {
+                    const checkbox = document.getElementById(`metodo-${metodo.trim()}`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+        }
+    } catch (err) {
+        console.error('Error al cargar preventa:', err);
+        alert('Error al cargar la información de preventa');
+    }
+}
+    
+    function abrirModalPreventa() {
+        const modal = new bootstrap.Modal(document.getElementById('preventaModal'));
+        modal.show();
+    }
+    
+    async function guardarPreventa() {
+        const eventoId = document.getElementById('eventoId').value;
+        const fechaInicio = document.getElementById('fechaInicio').value;
+        const fechaFin = document.getElementById('fechaFin').value;
+        
+        // Obtener métodos de pago seleccionados
+        const metodosPago = Array.from(document.querySelectorAll('.metodos-pago-checkbox input:checked'))
+            .map(checkbox => checkbox.value);
+        
+        try {
+            const response = await fetch('/evento/preventa/crear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    eventoId,
+                    fechaInicio,
+                    fechaFin,
+                    metodosPago
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Preventa configurada correctamente');
+                window.location.reload();
+            } else {
+                throw new Error(result.error || 'Error desconocido');
+            }
+        } catch (err) {
+            console.error('Error al guardar preventa:', err);
+            alert('Error al guardar preventa: ' + err.message);
+        }
+    }
+        // Cargar categorías para cada evento al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.evento-card').forEach(card => {
+                const eventoId = card.dataset.id;
+                cargarCategorias(eventoId);
+            });
+        });
+        
+        // Función para cargar categorías de un evento
+        async function cargarCategorias(eventoId) {
+            try {
+                const response = await fetch(`/evento/${eventoId}/categorias`);
+                const categorias = await response.json();
+                
+                const container = document.getElementById(`categorias-${eventoId}`);
+                container.innerHTML = '';
+                
+                if (categorias.length === 0) {
+                    container.innerHTML = '<p>No hay categorías definidas para este evento.</p>';
+                    return;
+                }
+                
+                categorias.forEach(categoria => {
+                    const card = document.createElement('div');
+                    card.className = 'categoria-card';
+                    card.innerHTML = `
+    <div class="categoria-header">
+        <h5>
+            <span class="color-indicator" style="background-color: ${categoria.color || '#4CAF50'}"></span>
+            ${categoria.categoria} - ₡${categoria.precio.toLocaleString()}
+        </h5>
+        <span>Disponibles: ${categoria.cantidadDisponible}</span>
+    </div>
+    <p>${categoria.descripcion || 'Sin descripción'}</p>
+    <p>Máximo por compra: ${categoria.max_boletos_por_compra || 10}</p>
+
+    <div class="categoria-actions">
+        <label>Actualizar disponibilidad:</label>
+        <input type="number" class="cantidad-input" value="${categoria.cantidadDisponible}" 
+               min="0" max="10000" id="cantidad-${eventoId}-${categoria.bloqueId}">
+        <button class="btn-actualizar" onclick="actualizarDisponibilidad(${eventoId}, ${categoria.bloqueId})">
+            Actualizar
+        </button>
+    </div>
+`;
+
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Error al cargar categorías:', err);
+                document.getElementById(`categorias-${eventoId}`).innerHTML = 
+                    '<p>Error al cargar las categorías. Intente recargar la página.</p>';
+            }
+        }
+        
+        // Función para actualizar disponibilidad
+        async function actualizarDisponibilidad(eventoId, bloqueId) {
+            const cantidad = document.getElementById(`cantidad-${eventoId}-${bloqueId}`).value;
+            
+            try {
+                const response = await fetch(`/evento/${eventoId}/disponibilidad`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        bloqueId: bloqueId,
+                        cantidad: cantidad
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Disponibilidad actualizada correctamente');
+                    cargarCategorias(eventoId); // Recargar datos
+                } else {
+                    throw new Error(result.error || 'Error desconocido');
+                }
+            } catch (err) {
+                console.error('Error al actualizar disponibilidad:', err);
+                alert('Error al actualizar disponibilidad: ' + err.message);
+            }
+        }
+        
+        // Filtrar eventos
+        document.getElementById('filtroEventosForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const params = new URLSearchParams();
+            
+            for (const [key, value] of formData.entries()) {
+                if (value) params.append(key, value);
+            }
+            
+            try {
+                const response = await fetch(`/evento/filtros/buscar?${params.toString()}`);
+                const eventosFiltrados = await response.json();
+                
+                const container = document.getElementById('resultadosEventos');
+                container.innerHTML = '';
+                
+                if (eventosFiltrados.length === 0) {
+                    container.innerHTML = '<p>No se encontraron eventos con los filtros seleccionados.</p>';
+                    return;
+                }
+                
+                eventosFiltrados.forEach(evento => {
+                    const card = document.createElement('div');
+                    card.className = 'evento-card';
+                    card.dataset.id = evento.eventoId;
+                    card.innerHTML = `
+                        <h3>${evento.nombre}</h3>
+                        <p><strong>Tipo:</strong> ${evento.tipo}</p>
+                        <p><strong>Fecha:</strong> ${new Date(evento.fecha).toLocaleDateString()}</p>
+                        <p><strong>Lugar:</strong> ${evento.lugar}</p>
+                        <p><strong>Precio:</strong> ₡${evento.precioMin.toLocaleString()} - ₡${evento.precioMax.toLocaleString()}</p>
+                        
+                        <button onclick="cargarCategorias(${evento.eventoId})">
+                            Ver categorías de boletos
+                        </button>
+                        <div id="categorias-${evento.eventoId}" class="categorias-container" style="display:none;"></div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                console.error('Error al filtrar eventos:', err);
+                alert('Error al aplicar filtros');
+            }
+        });
+    </script>
+
+<div class="modal fade" id="preventaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content" style="background-color: #1c1c1c; color: #aaff00; border: 1px solid #64DD17;">
+        <div class="modal-header" style="border-bottom: 1px solid #64DD17;">
+          <h5 class="modal-title">Crear Preventa para <span id="tituloEventoModal" style="color: #64DD17;"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="preventaForm">
+            <input type="hidden" id="eventoId" name="eventoId">
+  
+            <div class="mb-3">
+              <label for="fechaInicio" class="form-label">Fecha de inicio</label>
+              <input type="datetime-local" class="form-control" id="fechaInicio" required>
+            </div>
+  
+            <div class="mb-3">
+              <label for="fechaFin" class="form-label">Fecha de finalización</label>
+              <input type="datetime-local" class="form-control" id="fechaFin" required>
+            </div>
+  
+            <div class="mb-3">
+              <label>Métodos de pago aceptados</label>
+              <div class="metodos-pago-checkbox">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="metodo-visa" value="Visa">
+                  <label class="form-check-label" for="metodo-visa">Visa</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="metodo-mastercard" value="MasterCard">
+                  <label class="form-check-label" for="metodo-mastercard">MasterCard</label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="metodo-amex" value="American Express">
+                  <label class="form-check-label" for="metodo-amex">American Express</label>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer" style="border-top: 1px solid #64DD17;">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="guardarPreventa()">Guardar Preventa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Bootstrap 5 JS + Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+
+  
+</html>

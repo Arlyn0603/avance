@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Eventos</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Gestión de Eventos</h1>
+    </header>
+
+    <main>
+        <!-- Crear Evento -->
+        <section>
+            <h2>Crear Evento</h2>
+            <form id="crearEventoForm">
+                <label for="nombre">Nombre del Evento:</label>
+                <input type="text" id="nombre" name="nombre" required>
+
+                <label for="fecha">Fecha del Evento:</label>
+                <input type="datetime-local" id="fecha" name="fecha" required>
+
+                <label for="lugarId">Lugar:</label>
+                <select id="lugarId" name="lugarId" required>
+                    <!-- Opciones dinámicas -->
+                </select>
+
+                <label for="descripcion">Descripción:</label>
+                <textarea id="descripcion" name="descripcion"></textarea>
+
+                <button type="submit">Crear Evento</button>
+            </form>
+        </section>
+
+        <!-- Asignar Lugar -->
+        <section>
+            <h2>Asignar Lugar a Evento</h2>
+            <form id="asignarLugarForm">
+                <label for="eventoIdAsignar">ID del Evento:</label>
+                <input type="number" id="eventoIdAsignar" name="eventoId" required>
+
+                <label for="lugarIdAsignar">ID del Lugar:</label>
+                <input type="number" id="lugarIdAsignar" name="lugarId" required>
+
+                <button type="submit">Asignar Lugar</button>
+            </form>
+        </section>
+
+        <!-- Habilitar Lugares -->
+        <section>
+            <h2>Habilitar Lugares</h2>
+            <form id="habilitarLugaresForm">
+                <label for="eventoIdHabilitar">ID del Evento:</label>
+                <input type="number" id="eventoIdHabilitar" name="eventoId" required>
+
+                <button type="submit">Habilitar Lugares</button>
+            </form>
+        </section>
+
+        <!-- Cancelar Evento -->
+        <section>
+            <h2>Cancelar Evento</h2>
+            <form id="cancelarEventoForm">
+                <label for="eventoIdCancelar">ID del Evento:</label>
+                <input type="number" id="eventoIdCancelar" name="eventoId" required>
+
+                <button type="submit">Cancelar Evento</button>
+            </form>
+        </section>
+
+        <!-- Mover a Histórico -->
+        <section>
+            <h2>Mover Evento a Histórico</h2>
+            <form id="historicoEventoForm">
+                <label for="eventoIdHistorico">ID del Evento:</label>
+                <input type="number" id="eventoIdHistorico" name="eventoId" required>
+
+                <button type="submit">Mover a Histórico</button>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        // Función para manejar el envío de formularios
+        async function enviarFormulario(formId, endpoint, method = 'POST') {
+            const form = document.getElementById(formId);
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method,
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(result.message);
+                        form.reset();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al procesar la solicitud.');
+                }
+            });
+        }
+
+        // Configurar formularios
+        document.addEventListener('DOMContentLoaded', () => {
+            enviarFormulario('crearEventoForm', '/eventos/crear');
+            enviarFormulario('asignarLugarForm', '/eventos/asignar-lugar', 'PUT');
+            enviarFormulario('habilitarLugaresForm', '/eventos/habilitar-lugares', 'PUT');
+            enviarFormulario('cancelarEventoForm', '/eventos/cancelar', 'PUT');
+            enviarFormulario('historicoEventoForm', '/eventos/historico', 'PUT');
+        });
+    </script>
+ 
+</body>
+</html>

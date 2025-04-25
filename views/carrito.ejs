@@ -11,37 +11,62 @@
 </head>
 <body>
     <section class="principal">
+        <!-- Header -->
         <header class="header">
             <a href="/" class="logo">
                 <img src="/img/logo.png" alt="EasyTicket">
             </a>
-            <nav class="nav">
-                <a href="#">Conciertos</a>
-                <a href="#">Deportes</a>
-                <a href="#">Teatro</a>
-                <a href="#">Culturales</a>
-                <a href="#">Comedia</a>
-                <a href="#">Festivales</a>
-            </nav>
             <% if (user) { %>
-                <!-- Botón de perfil (visible cuando el usuario está autenticado) -->
-                <div class="profile-dropdown">
-                    <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
-                        <img src="/img/user.png" alt="Perfil">
-                        <span id="profileEmail"><%= user.email %></span> <!-- Mostrar el correo aquí -->
-                    </button>
-                    <div class="dropdown-menu" id="dropdownMenu">
-                        <a href="/historial">Historial</a> <!-- Cambiado de "Perfil" a "Historial" -->
-                        <a href="/billetera">Billetera</a>
-                        <a href="/atencion/tickets/vista">Mis Tickets</a>
-                        <a href="/logout">Cerrar sesión</a>
+                <% if (user.tipo === 'Admin') { %>
+                    <!-- Header para Admin -->
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/administrador">
+                                <img src="/img/user.png" alt="Administrador">
+                            </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                        </button>
                     </div>
-                </div>
+                <% } else { %>
+                    <!-- Header para Cliente -->
+                   
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/usuario">
+                                <img src="/img/user.png" alt="Usuario">
+                            </a><span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } %>
             <% } else { %>
-                <!-- Botón de iniciar sesión (visible cuando el usuario no está autenticado) -->
+                <!-- Header para usuarios no autenticados -->
+                <button class="search-btn" onclick="toggleSearchSection()">
+                    <img src="/img/lupa.png" alt="Buscar" width="20">
+                </button>
                 <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
             <% } %>
+            
         </header>
+
+
+        <script>
+            // Función para alternar el menú de perfil
+            function toggleProfileMenu() {
+                const dropdownMenu = document.getElementById('dropdownMenu');
+                dropdownMenu.style.display = dropdownMenu.style.display === 'block' ? 'none' : 'block';
+            }
+        
+            // Cerrar el menú si se hace clic fuera de él
+            window.onclick = function(event) {
+                if (!event.target.matches('.profile-btn')) {
+                    const dropdownMenu = document.getElementById('dropdownMenu');
+                    if (dropdownMenu.style.display === 'block') {
+                        dropdownMenu.style.display = 'none';
+                    }
+                }
+            }
+        
+        </script>
+
         <main>
             <h1>Carrito de Compras</h1>
 
@@ -58,21 +83,14 @@
                         <% carrito.forEach((item, index) => { %>
                             <div class="cart-item">
                                 <div class="cart-item-image">
-                                    <img src="/img/camilo.png" alt="<%= item.nombre %>">
+                                    <img src="<%= item.imagen %>" alt="<%= item.nombre %>">
                                 </div>
                                 <div class="cart-item-info">
                                     <h2><%= item.nombre %></h2>
-                                    <p><%= item.ubicacion %></p>
-                                    <p>Tipo de ticket: <%= item.zona %></p>
-                                    <p>Cantidad: <%= item.cantidad %></p>
+                                    <p>Bloque: <%= item.bloqueNombre %></p>
+                                    <p>Asientos: <%= item.asientos.join(', ') %></p>
                                     <p>Precio unitario: ₡<%= item.precio %></p>
                                     <p>Total: ₡<%= item.cantidad * item.precio %></p>
-                                    <form action="/carrito/modificar" method="POST" class="form-inline">
-                                        <input type="hidden" name="index" value="<%= index %>">
-                                        <label for="cantidad-<%= index %>">Cambiar Cantidad:</label>
-                                        <input id="cantidad-<%= index %>" type="number" name="cantidad" value="<%= item.cantidad %>" min="1">
-                                        <button type="submit">Actualizar</button>
-                                    </form>
                                     <form action="/carrito/eliminar" method="POST" class="form-inline">
                                         <input type="hidden" name="index" value="<%= index %>">
                                         <button type="submit" class="delete-btn">Eliminar</button>
@@ -97,7 +115,7 @@
                                 <% if (tarjetas.length > 0) { %>
                                     <% tarjetas.forEach((tarjeta) => { %>
                                         <option value="<%= tarjeta.NumeroTarjeta %>">
-                                            **** **** **** <%= tarjeta.UltimosCuatroDigitos %> - <%= tarjeta.NombreTitular %>
+                                            **** **** **** <%= tarjeta.UltimosCuatroDigitos %> - <%= tarjeta.NombreTitular %> - Saldo: ₡<%= tarjeta.Saldo.toFixed(2) %>
                                         </option>
                                     <% }) %>
                                 <% } else { %>

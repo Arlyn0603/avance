@@ -177,3 +177,87 @@ h2 {
     background-color: #88cc00; /* Verde más oscuro al pasar el mouse */
     transform: scale(1.05); /* Efecto de escala */
 }
+
+/* Estilos para pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+    .events-section,
+    .customer-service,
+    .faq {
+        padding: 30px 10px; /* Reducir el padding para pantallas pequeñas */
+    }
+
+    .event {
+        flex-direction: column; /* Apilar contenido verticalmente */
+        align-items: flex-start;
+    }
+
+    .event img {
+        width: 80px; /* Reducir tamaño de la imagen */
+        height: 80px;
+        margin-bottom: 10px; /* Espacio entre imagen y texto */
+    }
+
+    .event-btn {
+        padding: 6px 10px; /* Botón más pequeño */
+        font-size: 14px;
+    }
+
+    .customer-form input,
+    .customer-form textarea {
+        font-size: 14px; /* Reducir tamaño de fuente */
+    }
+
+    .faq-item {
+        padding: 8px; /* Reducir padding */
+    }
+
+    h2 {
+        font-size: 20px; /* Reducir tamaño de encabezados */
+    }
+
+    .search-section {
+        padding: 15px; /* Reducir padding */
+    }
+
+    #search-form button {
+        font-size: 16px; /* Reducir tamaño de fuente */
+        padding: 10px; /* Ajustar tamaño del botón */
+    }
+}
+
+/* Estilos para pantallas medianas (tablets) */
+@media (max-width: 1024px) {
+    .events-section,
+    .customer-service,
+    .faq {
+        padding: 40px 15px; /* Ajustar padding para tablets */
+    }
+
+    .event img {
+        width: 90px; /* Ajustar tamaño de la imagen */
+        height: 90px;
+    }
+
+    .event-btn {
+        padding: 8px 12px; /* Botón ligeramente más pequeño */
+        font-size: 15px;
+    }
+
+    .customer-form input,
+    .customer-form textarea {
+        font-size: 15px; /* Ajustar tamaño de fuente */
+    }
+
+    h2 {
+        font-size: 22px; /* Ajustar tamaño de encabezados */
+    }
+
+    .search-section {
+        padding: 20px; /* Ajustar padding */
+    }
+
+    #search-form button {
+        font-size: 17px; /* Ajustar tamaño de fuente */
+        padding: 11px; /* Ajustar tamaño del botón */
+    }
+}

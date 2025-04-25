@@ -1,0 +1,94 @@
+/* Estilo general para el cuerpo */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #111; /* Fondo oscuro */
+    color: #fff; /* Texto blanco */
+    margin: 0;
+    padding: 20px;
+}
+
+/* Títulos principales */
+h1 {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #aaff00; /* Verde neón */
+}
+
+/* Títulos secundarios */
+h2 {
+    font-size: 1.5rem;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    color: #aaff00; /* Verde neón */
+}
+
+/* Tablas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    background-color: #222; /* Fondo oscuro para las tablas */
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Encabezados de tabla */
+table thead {
+    background-color: #333; /* Fondo más oscuro */
+}
+
+table thead th {
+    padding: 10px;
+    text-align: left;
+    color: #aaff00; /* Verde neón */
+    font-weight: bold;
+    border-bottom: 2px solid #444; /* Línea divisoria */
+}
+
+/* Filas de tabla */
+table tbody tr {
+    border-bottom: 1px solid #444; /* Línea divisoria */
+}
+
+table tbody tr:nth-child(even) {
+    background-color: #2a2a2a; /* Fondo alternativo */
+}
+
+table tbody td {
+    padding: 10px;
+    color: #fff; /* Texto blanco */
+}
+
+/* Hover en filas */
+table tbody tr:hover {
+    background-color: #333; /* Fondo más claro al pasar el mouse */
+}
+
+/* Texto destacado */
+p {
+    font-size: 1.2rem;
+    margin-top: 10px;
+    color: #fff;
+}
+
+p strong {
+    color: #aaff00; /* Verde neón */
+}
+
+/* Botones */
+button {
+    background-color: #aaff00; /* Verde neón */
+    color: #000; /* Texto negro */
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #88cc00; /* Verde más oscuro */
+}

@@ -1,14 +1,13 @@
 const sql = require("mssql");
 
-
 const config = {
-    user: "Arlynn", // Reemplázalo con tu usuario de SQL Server
-    password: "Arlinms1.", // Reemplázalo con tu contraseña
-    server: "ARLYN", // Reemplázalo con la dirección IP de tu servidor SQL Server
+    user: "EventosDB", // Nombre de usuario proporcionado en Plesk
+    password: "EventosDB1.", // Coloca aquí la contraseña que se muestra en Plesk (no se ve en la imagen)
+    server: "tiusr16pl.cuc-carrera-ti.ac.cr", // Host de la base de datos en Plesk
     database: "EventosDB",
     options: {
-        encrypt: false, // Desactiva en local, pero actívalo en producción
-        trustServerCertificate: true // Solo si usas autenticación de Windows
+        encrypt: true, // Importante activar para conexiones remotas
+        trustServerCertificate: true // Esto depende de si el certificado es confiable o no
     }
 };
 

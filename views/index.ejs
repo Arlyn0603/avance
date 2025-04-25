@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/css/estilos.css">
     <link rel="stylesheet" href="/css/secciones.css">
     <link rel="stylesheet" href="/css/modal.css">
+    <link rel="stylesheet" href="/css/chatbot.css">
     <style>
         .search-btn {
             background: none;
@@ -19,6 +20,45 @@
         .search-btn img {
             vertical-align: middle;
         }
+
+        /* Estilos para la sección de preventa */
+#eventosPreventa {
+    margin: 2rem 0;
+    padding: 1rem;
+    background-color: #000000;
+    border-radius: 8px;
+}
+
+.preventa-badge {
+    background-color: #ff5722;
+    color: rgb(0, 0, 0);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.error-message {
+    color: #d32f2f;
+    font-weight: bold;
+}
+
+.reload-btn {
+    background-color: #77da27;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+.reload-btn:hover {
+    background-color: #77da27;
+}
     </style>
 </head>
 <body>
@@ -27,47 +67,57 @@
             <a href="/" class="logo">
                 <img src="/img/logo.png" alt="EasyTicket">
             </a>
-            <nav class="nav">
-                <a href="#">Conciertos</a>
-                <a href="#">Deportes</a>
-                <a href="#">Teatro</a>
-                <a href="#">Culturales</a>
-                <a href="#">Comedia</a>
-                <a href="#">Festivales</a>
-            </nav>
             <% if (user) { %>
-                <!-- Botón de búsqueda (lupa) -->
-                <button class="search-btn" onclick="toggleSearchSection()">
-                    <img src="/img/lupa.png" alt="Buscar" width="20">
-                </button>
-                <!-- Botón de perfil -->
-                <div class="profile-dropdown">
-                    <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
-                        <img src="/img/user.png" alt="Perfil">
-                        <span id="profileEmail"><%= user.email %></span>
-                    </button>
-                    <div class="dropdown-menu" id="dropdownMenu">
-                        <a href="/historial">Historial</a>
-                        <a href="/billetera">Billetera</a>
-                        <a href="/atencion/tickets/vista">Mis Tickets</a>
-                        <a href="/logout">Cerrar sesión</a>
+                <% if (user.tipo === 'Admin') { %>
+                    <!-- Header para Admin -->
+                    <div class="profile-dropdown">
+                        <button class="chatbot-btn" onclick="toggleChatbot()">
+                            <img src="/img/chatbot.png" alt="Chatbot" width="40">
+                        </button>
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/administrador">
+                                <img src="/img/user.png" alt="Administrador">
+                            </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                        </button>
                     </div>
-                </div>
+                <% } else { %>
+                    <!-- Header para Cliente -->
+                   
+                    <div class="profile-dropdown">
+                        <button class="search-btn" onclick="toggleSearchSection()">
+                            <img src="/img/lupa.png" alt="Buscar" width="20">
+                        </button>
+                        <button class="chatbot-btn" onclick="toggleChatbot()">
+                            <img src="/img/chatbot.png" alt="Chatbot" width="40">
+                        </button>
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/usuario">
+                                <img src="/img/user.png" alt="Usuario">
+                            </a><span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } %>
             <% } else { %>
-                <!-- Botón de búsqueda (lupa) para usuarios no autenticados -->
-                <button class="search-btn" onclick="toggleSearchSection()">
-                    <img src="/img/lupa.png" alt="Buscar" width="20">
-                </button>
-                <!-- Botón de iniciar sesión -->
-                <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
-            <% } %>
+                <!-- Header para usuarios no autenticados -->
+                <div class="profile-dropdown">
+                    <button class="search-btn" onclick="toggleSearchSection()">
+                        <img src="/img/lupa.png" alt="Buscar" width="20">
+                    </button>
+                    <button class="chatbot-btn" onclick="toggleChatbot()">
+                        <img src="/img/chatbot.png" alt="Chatbot" width="40">
+                    </button>
+                    <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
+                </div>
+                <% } %>
+            
         </header>
+
 
         <section class="hero">
             <h1>No veas cómo te lo cuentan...</h1>
             <p class="highlight">¡Vívelo en primera fila!</p>
             <p>Encuentra tus boletos para conciertos, eventos y espectáculos.</p>
-            <button onclick="location.href='#eventos'">Ver eventos</button>
+            <button onclick="location.href='#evento'">Ver eventos</button>
         </section>
 
         <div class="events-bar">
@@ -118,29 +168,132 @@
     </form>
 </section>
 
+<!-- 🎟️ Sección de Eventos con Preventa -->
+<section id="eventosPreventa" class="events-section">
+    <h2>Eventos en Preventa</h2>
+    <div id="preventaContainer">
+        <!-- Los eventos con preventa se cargarán aquí dinámicamente -->
+    </div>
+</section>
+
+<script>
+     const isLoggedIn = "<%= user ? 'true' : 'false' %>";
+    const userTipo = "<%= user?.tipo || '' %>";
+    const userEmail = "<%= user?.email || '' %>";
+// Función para cargar eventos con preventa
+async function cargarEventosPreventa() {
+    const container = document.getElementById('preventaContainer');
+    container.innerHTML = '<p>Cargando eventos en preventa...</p>';
+
+    if (!isLoggedIn || userTipo !== "Cliente") {
+        container.innerHTML = '<p>Debes iniciar sesión como cliente para ver eventos en preventa.</p>';
+        return;
+    }
+
+    try {
+        const response = await fetch('/evento/con-preventa', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: userEmail })
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const eventos = await response.json();
+
+        if (eventos.length === 0) {
+            container.innerHTML = `
+                <p>No hay eventos en preventa disponibles.</p>
+                <p>Revisa más tarde.</p>
+            `;
+            return;
+        }
+
+        container.innerHTML = '';
+        eventos.forEach(evento => {
+            const eventDiv = document.createElement('div');
+            eventDiv.className = 'event';
+            eventDiv.innerHTML = `
+                <img src="${evento.imagen || '/img/evento-default.jpg'}" alt="${evento.nombre}">
+                <div class="event-info">
+                    <h3>${evento.nombre}</h3>
+                    <p><strong>Lugar:</strong> ${evento.lugarNombre}</p>
+                    <p><strong>Fecha:</strong> ${new Date(evento.fecha).toLocaleDateString()}</p>
+                    <p><strong>Preventa hasta:</strong> ${new Date(evento.fechaFin).toLocaleDateString()}</p>
+                    <p><strong>Métodos de pago aceptados:</strong> ${evento.metodosPago}</p>
+                </div>
+                <div class="event-actions">
+                    <a href="/evento/${evento.eventoId}" class="ver-evento-btn">Ver evento</a>
+                </div>
+                <div class="preventa-badge">PREVENTA</div>
+            `;
+            container.appendChild(eventDiv);
+        });
+
+    } catch (err) {
+        console.error('Error al cargar preventas:', err);
+        container.innerHTML = `
+            <p class="error-message">Error al cargar eventos en preventa</p>
+            <button onclick="cargarEventosPreventa()" class="reload-btn">Reintentar</button>
+        `;
+    }
+}
+
+
+// Llamar a la función cuando la página cargue
+if (document.getElementById('preventaContainer')) {
+    document.addEventListener('DOMContentLoaded', cargarEventosPreventa);
+}
+</script>
+
+<style>
+.preventa-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff5722;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.events-section {
+    margin-bottom: 40px;
+}
+</style>
+
 <!-- 🎟️ Sección de Eventos -->
 <section id="eventos" class="events-section">
     <% eventos.forEach(evento => { %>
-        <div class="event" 
-            data-ubicacion="<%= evento.ubicacion %>" 
-            data-tipo="<%= evento.tipo %>" 
-            data-fecha="<%= evento.fecha %>" 
-            data-precio="<%= evento.precio %>">
-            
-            <img src="<%= evento.imagen %>" alt="<%= evento.nombre %>">
-            <div class="event-info">
-                <h3><%= evento.nombre %></h3>
-                <p>Ubicación: <%= evento.ubicacion %></p>
-                <p>Fecha: <%= evento.fecha %></p>
-                <p>Precio: ₡<%= evento.precio %></p>
-            </div>
-            <div class="event-actions">
-                <a href="/eventos/<%= evento.id %>" class="ver-evento-btn">Ver evento</a>
-            </div>
+      <div class="event"
+           data-ubicacion="<%= evento.ubicacion %>"
+           data-tipo="<%= evento.tipo %>"
+           data-fecha="<%= evento.fecha %>"
+           data-precio="<%= evento.precio %>">
+  
+        <img src="<%= evento.imagen %>" alt="<%= evento.nombre %>">
+        <div class="event-info">
+          <h3><%= evento.nombre %></h3>
+          <p>Ubicación: <%= evento.ubicacion %></p>
+          <p>Fecha: <%= evento.fecha %></p>
+          <p>Precio: ₡<%= evento.precio %></p>
         </div>
-    <% }); %>
-</section>
-
+        <div class="event-actions">
+          <!-- Aquí la corrección: usamos 'evento.eventoId', no 'eventos.id' -->
+          <a href="/evento/<%= evento.eventoId %>" class="ver-evento-btn">
+            Ver evento
+        </a>
+        </div>
+      </div>
+    <% }) %>
+  </section>
+  
     
     
 
@@ -197,7 +350,165 @@ document.getElementById('search-form').addEventListener('submit', function(e) {
     filtrarEventos();
 });
     </script>
-</body>
+
+<!-- Chatbot Container -->
+<div id="chatbotContainer" class="chatbot-container">
+    <div class="chatbot-header">
+        <h3>Asistente de EasyTicket</h3>
+        <button onclick="toggleChatbot()" style="background:none; border:none; color:white; font-size:20px;">×</button>
+    </div>
+    <div id="chatbotMessages" class="chatbot-messages">
+        <!-- Mensajes aparecerán aquí -->
+    </div>
+    <div class="chatbot-input">
+        <input type="text" id="chatbotInput" placeholder="Escribe tu mensaje...">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+</div>
+<script>
+    // Función para mostrar/ocultar el chatbot
+    function toggleChatbot() {
+        const chatbot = document.getElementById('chatbotContainer');
+        chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
+        
+        // Si se está mostrando, enviar mensaje de bienvenida
+        if (chatbot.style.display === 'flex') {
+            showWelcomeMessage();
+        }
+    }
+    
+    // Mensaje de bienvenida según tipo de usuario
+    // Reemplaza esta sección en tu script del chatbot
+    function showWelcomeMessage() {
+        const messagesDiv = document.getElementById('chatbotMessages');
+        messagesDiv.innerHTML = '';
+        
+        // Verifica si hay un usuario y su tipo usando datos inyectados desde EJS
+        const userType = '<%= user && user.tipo ? user.tipo : "" %>';
+        const userName = '<%= user && user.firstName ? user.firstName : "" %>';
+        
+        if (userType === 'Admin') {
+            addBotMessage("¡Hola administrador! ¿En qué puedo ayudarte hoy?");
+            addBotMessage("Puedes gestionar las preguntas frecuentes, habilitar/deshabilitar opciones del menú o configurar respuestas automáticas.");
+        } else if (userType) {
+            addBotMessage(`¡Hola ${userName}! Soy tu asistente de EasyTicket.`);
+            addBotMessage("Puedo ayudarte con: compra de boletos, consulta de eventos, problemas con tu cuenta y más. ¿En qué necesitas ayuda?");
+        } else {
+            addBotMessage("¡Hola! Bienvenido a EasyTicket.");
+            addBotMessage("Puedo ayudarte a encontrar eventos, explicarte cómo funciona nuestro servicio o resolver tus dudas. ¿En qué puedo ayudarte?");
+        }
+    }
+    
+    // Función para enviar mensaje al chatbot
+    function sendMessage() {
+        const input = document.getElementById('chatbotInput');
+        const message = input.value.trim();
+        
+        if (message) {
+            addUserMessage(message);
+            input.value = '';
+            
+            // Aquí iría la conexión con Dialogflow
+            processUserMessage(message);
+        }
+    }
+    
+    // Función para procesar el mensaje del usuario (conectar con Dialogflow)
+    // Función para procesar el mensaje del usuario con Dialogflow
+async function processUserMessage(message) {
+// Mostrar mensaje de "escribiendo..."
+addBotMessage("...", true);
+
+try {
+    // Usar el ID de usuario como sessionId si está logueado, o generar uno aleatorio
+    const sessionId = '<%= user ? user.id : "guest-" + Math.random().toString(36).substring(2, 15) %>';
+    
+    const response = await fetch('/api/chatbot', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+            message: message,
+            sessionId: sessionId
+        })
+    });
+    
+    const result = await response.json();
+    
+    // Eliminar el "escribiendo..."
+    const messagesDiv = document.getElementById('chatbotMessages');
+    if (messagesDiv.lastChild && messagesDiv.lastChild.innerText === "...") {
+        messagesDiv.removeChild(messagesDiv.lastChild);
+    }
+    
+    if (result.success) {
+        addBotMessage(result.response);
+        
+        // Manejar acciones especiales basadas en el intent
+        handleIntent(result.intent, result.parameters);
+    } else {
+        addBotMessage("Lo siento, hubo un error al procesar tu mensaje. Por favor intenta nuevamente.");
+    }
+} catch (err) {
+    console.error('Error:', err);
+    
+    // Eliminar el "escribiendo..." en caso de error
+    const messagesDiv = document.getElementById('chatbotMessages');
+    if (messagesDiv.lastChild && messagesDiv.lastChild.innerText === "...") {
+        messagesDiv.removeChild(messagesDiv.lastChild);
+    }
+    
+    addBotMessage("Lo siento, estoy teniendo problemas para responder. Por favor intenta más tarde.");
+}
+}
+
+// Función para manejar intenciones específicas
+function handleIntent(intent, parameters) {
+console.log("Intent detectado:", intent);
+console.log("Parámetros:", parameters);
+
+// Aquí puedes agregar lógica para manejar intenciones específicas
+// Por ejemplo:
+if (intent === 'Default Welcome Intent') {
+    // Podrías personalizar la bienvenida
+} else if (intent === 'Consulta.Eventos') {
+    // Mostrar eventos relevantes basados en parámetros
+}
+// ... más lógica según tus intenciones en Dialogflow
+}
+    
+    // Funciones auxiliares para agregar mensajes
+    function addUserMessage(text) {
+        const messagesDiv = document.getElementById('chatbotMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message user-message';
+        messageDiv.textContent = text;
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    
+    function addBotMessage(text, isTyping = false) {
+        const messagesDiv = document.getElementById('chatbotMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message bot-message';
+        messageDiv.textContent = text;
+        messagesDiv.appendChild(messageDiv);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        
+        if (isTyping) {
+            messageDiv.id = 'typingIndicator';
+        }
+    }
+    
+    // Permitir enviar mensaje con Enter
+    document.getElementById('chatbotInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+</script>
+   </body>
 <!-- 📩 Sección de Atención al Cliente -->
 <section class="customer-service">
     <h2>Atención al Cliente</h2>
@@ -411,7 +722,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = Object.fromEntries(formData.entries());
 
         try {
-            const response = await fetch("http://localhost:3005/usuarios/registrar", {
+            const response = await fetch("http://localhost:3003/usuarios/registrar", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

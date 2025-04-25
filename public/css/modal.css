@@ -162,3 +162,58 @@ button {
 .forgot:hover, .resend:hover {
     text-decoration: underline;
 }
+
+/* Estilos para pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 90%; /* Asegura que el modal ocupe casi todo el ancho */
+        padding: 15px; /* Reducir el padding */
+        font-size: 14px; /* Reducir el tamaño de fuente */
+    }
+
+    .close {
+        font-size: 18px; /* Ajustar el tamaño del botón de cerrar */
+    }
+
+    .actions {
+        flex-direction: column; /* Apilar botones verticalmente */
+        gap: 10px; /* Espacio entre botones */
+    }
+
+    button {
+        width: 100%; /* Botones ocupan todo el ancho */
+        padding: 8px; /* Reducir el padding */
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+        font-size: 14px; /* Reducir tamaño de fuente */
+        padding: 10px; /* Ajustar padding */
+    }
+}
+
+/* Estilos para pantallas medianas (tablets) */
+@media (max-width: 1024px) {
+    .modal-content {
+        width: 70%; /* Ajustar el ancho del modal */
+        padding: 20px; /* Ajustar el padding */
+    }
+
+    .actions {
+        gap: 15px; /* Espacio entre botones */
+    }
+
+    button {
+        padding: 10px 15px; /* Ajustar el tamaño de los botones */
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    select {
+        font-size: 15px; /* Ajustar tamaño de fuente */
+        padding: 12px; /* Ajustar padding */
+    }
+}

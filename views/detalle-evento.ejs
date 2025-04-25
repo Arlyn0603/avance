@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= evento.nombre %> - EasyTicket</title>
+     <link rel="stylesheet" href="/css/edificaciones.css">
+    <link rel="stylesheet" href="/css/usuario.css">
+    <link rel="stylesheet" href="/css/estilos.css">
+    <link rel="stylesheet" href="/css/carrito.css">
+    <link rel="stylesheet" href="/css/secciones.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <link rel="stylesheet" href="/css/detalles-evento.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+   
+</head>
+<body>
+    <section class="principal">
+        <header class="header">
+            <a href="/" class="logo">
+                <img src="/img/logo.png" alt="EasyTicket">
+            </a>
+            <nav class="nav">
+                <a href="#">Conciertos</a>
+                <a href="#">Deportes</a>
+                <a href="#">Teatro</a>
+                <a href="#">Culturales</a>
+                <a href="#">Comedia</a>
+                <a href="#">Festivales</a>
+            </nav>
+            <% if (user) { %>
+                <% if (user.tipo === 'Admin') { %>
+                    <!-- Header para Admin -->
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/administrador">
+                                <img src="/img/user.png" alt="Administrador">
+                            </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } else { %>
+                    <!-- Header para Cliente -->
+                    <button class="search-btn" onclick="toggleSearchSection()">
+                        <img src="/img/lupa.png" alt="Buscar" width="20">
+                    </button>
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/usuario">
+                                <img src="/img/user.png" alt="Usuario">
+                            </a><span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <!-- Header para usuarios no autenticados -->
+                <button class="search-btn" onclick="toggleSearchSection()">
+                    <img src="/img/lupa.png" alt="Buscar" width="20">
+                </button>
+                <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
+            <% } %>
+            
+        </header>
+    <div class="container py-4">
+        <!-- Encabezado del evento -->
+        <div class="info-card evento">
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="<%= evento.imagen || '/img/default-event.jpg' %>" alt="<%= evento.nombre %>" class="evento-imagen">
+                </div>
+                <div class="col-md-6">
+                    <h4><%= evento.nombre %></h4>
+                    <p class="lead"><%= evento.descripcion %></p>
+                    
+                    <div class="info-card evento">
+
+                        <h4>Información del Evento</h4>
+                        <p><strong>Tipo:</strong> <%= evento.tipo %></p>
+                        <p><strong>Fecha:</strong> <%= new Date(evento.fecha).toLocaleString() %></p>
+                    </div>
+                    
+                    <a href="/eventos" class="btn btn-outline-primary">Volver a eventos</a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información del lugar -->
+        <div class="info-card lugar">
+            <h3>Lugar del Evento</h3>
+            <div id="lugarInfo">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="<%= evento.lugarImagen || '/img/default-place.png' %>" 
+                             class="img-fluid rounded" 
+                             alt="<%= evento.lugarNombre %>">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h4 class="card-title"><%= evento.lugarNombre %></h4>
+                            <p class="card-text"><%= evento.direccion || 'Sin dirección especificada' %></p>
+                            <p class="card-text">Capacidad: <%= evento.capacidad %> personas</p>
+                            <% if (evento.lugarDescripcion) { %>
+                                <p class="card-text"><%= evento.lugarDescripcion %></p>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bloques y precios -->
+        <div class="info-card bloques">
+            <h3>Bloques y Precios</h3>
+            <div class="row">
+                <% bloques.forEach((bloque, index) => { %>
+                    <div class="col-md-6">
+                        <div class="bloque-card">
+                            <h5><%= bloque.nombre %></h5>
+                            <p>Tipo: <%= bloque.tipo %></p>
+                            <p>Asientos disponibles: <%= bloque.cantidad %></p>
+                            <p>Precio por asiento: ₡<%= bloque.precio %></p>
+                            <button class="btn btn-primary select-seats-btn"
+                                data-bloque-id="<%= bloque.bloqueId %>"
+                                data-bloque-nombre="<%= bloque.nombre %>"
+                                data-cantidad-disponible="<%= bloque.cantidad %>"
+                                data-precio="<%= bloque.precio %>">
+                                Seleccionar asientos
+                            </button>
+                        </div>
+                    </div>
+                    <% if (index % 2 === 1) { %>
+                        <!-- Línea divisoria después de cada fila de dos bloques -->
+                        <div class="col-12">
+                            <hr class="divider-green">
+                        </div>
+                    <% } %>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de selección de asientos -->
+    <div class="modal fade" id="seatModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Selección de Asientos - <span id="modalBloqueNombre"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="max-seats-message">Máximo 4 asientos por reservación</div>
+                    <div class="available-seats-message" id="availableSeatsMessage"></div>
+                    <div class="selected-seats">Asientos seleccionados: <span id="selectedCount">0</span>/4: <span id="selectedSeatsList"></span></div>
+                    
+                    <div class="seat-map" id="seatMap">
+                        <!-- Los asientos se generarán dinámicamente con JavaScript -->
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-3">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button class="btn btn-primary" id="confirmSelection" disabled>Confirmar selección</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const seatModal = new bootstrap.Modal(document.getElementById('seatModal'));
+            let selectedSeats = [];
+            let currentBloqueId = null;
+            const MAX_SEATS = 4;
+            
+            // Manejador para el botón "Seleccionar asientos"
+            document.querySelectorAll('.select-seats-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    currentBloqueId = this.getAttribute('data-bloque-id');
+                    const bloqueNombre = this.getAttribute('data-bloque-nombre');
+                    const cantidadDisponible = parseInt(this.getAttribute('data-cantidad-disponible'));
+                    
+                    document.getElementById('modalBloqueNombre').textContent = bloqueNombre;
+                    document.getElementById('availableSeatsMessage').textContent = 
+                        `${cantidadDisponible} asientos disponibles`;
+                    selectedSeats = [];
+                    updateSelectedCount();
+                    
+                    // Generar mapa de asientos
+                    generateSeatMap(cantidadDisponible);
+                    
+                    seatModal.show();
+                });
+            });
+            
+            // Función para generar el mapa de asientos
+            function generateSeatMap(totalSeats) {
+                const seatMap = document.getElementById('seatMap');
+                seatMap.innerHTML = '';
+                
+                // Generar 100 asientos (10x10) como ejemplo
+                for (let i = 0; i < 100; i++) {
+                    const seat = document.createElement('div');
+                    const seatNumber = i + 1;
+                    
+                    // Solo mostrar asientos disponibles
+                    if (seatNumber <= totalSeats) {
+                        seat.className = 'seat available';
+                        seat.textContent = seatNumber;
+                        seat.addEventListener('click', function() {
+                            toggleSeatSelection(this, seatNumber);
+                        });
+                    } else {
+                        // Ocultar asientos no disponibles en lugar de mostrarlos en gris
+                        seat.style.display = 'none';
+                    }
+                    
+                    // Añadir pasillos cada 5 asientos
+                    if (seatNumber % 10 === 5) {
+                        const aisle = document.createElement('div');
+                        aisle.className = 'seat aisle';
+                        seatMap.appendChild(aisle);
+                    }
+                    
+                    seatMap.appendChild(seat);
+                }
+            }
+            
+            // Función para seleccionar/deseleccionar asientos
+            function toggleSeatSelection(seatElement, seatNumber) {
+                const index = selectedSeats.indexOf(seatNumber);
+                
+                if (index === -1) {
+                    // Verificar límite de asientos
+                    if (selectedSeats.length >= MAX_SEATS) {
+                        alert(`Solo puedes seleccionar hasta ${MAX_SEATS} asientos`);
+                        return;
+                    }
+                    selectedSeats.push(seatNumber);
+                    seatElement.classList.add('selected');
+                } else {
+                    selectedSeats.splice(index, 1);
+                    seatElement.classList.remove('selected');
+                }
+                
+                updateSelectedCount();
+            }
+            
+            // Actualizar contador de asientos seleccionados
+            function updateSelectedCount() {
+                const countElement = document.getElementById('selectedCount');
+                const seatsListElement = document.getElementById('selectedSeatsList');
+                const confirmBtn = document.getElementById('confirmSelection');
+                
+                countElement.textContent = selectedSeats.length;
+                seatsListElement.textContent = selectedSeats.sort((a, b) => a - b).join(', ');
+                
+                // Habilitar/deshabilitar botón de confirmación
+                confirmBtn.disabled = selectedSeats.length === 0;
+                
+                // Cambiar color si se alcanza el máximo
+                if (selectedSeats.length >= MAX_SEATS) {
+                    countElement.classList.add('text-danger');
+                    countElement.classList.add('fw-bold');
+                } else {
+                    countElement.classList.remove('text-danger');
+                    countElement.classList.remove('fw-bold');
+                }
+            }
+            
+            // Confirmar selección de asientos
+           // Reemplaza el evento click del botón confirmSelection con este código:
+document.getElementById('confirmSelection').addEventListener('click', function() {
+    if (selectedSeats.length === 0) return;
+    
+    // Crear formulario dinámico para enviar los datos
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/carrito/agregar';
+    
+    // Añadir datos del evento
+    const eventoIdInput = document.createElement('input');
+    eventoIdInput.type = 'hidden';
+    eventoIdInput.name = 'eventoId';
+    eventoIdInput.value = '<%= evento.eventoId %>';
+    form.appendChild(eventoIdInput);
+    
+    const eventoNombreInput = document.createElement('input');
+    eventoNombreInput.type = 'hidden';
+    eventoNombreInput.name = 'eventoNombre';
+    eventoNombreInput.value = '<%= evento.nombre %>';
+    form.appendChild(eventoNombreInput);
+    
+    const bloqueIdInput = document.createElement('input');
+    bloqueIdInput.type = 'hidden';
+    bloqueIdInput.name = 'bloqueId';
+    bloqueIdInput.value = currentBloqueId;
+    form.appendChild(bloqueIdInput);
+    
+    const bloqueNombreInput = document.createElement('input');
+    bloqueNombreInput.type = 'hidden';
+    bloqueNombreInput.name = 'bloqueNombre';
+    bloqueNombreInput.value = document.getElementById('modalBloqueNombre').textContent;
+    form.appendChild(bloqueNombreInput);
+    
+    const precioInput = document.createElement('input');
+    precioInput.type = 'hidden';
+    precioInput.name = 'precio';
+    // Aquí deberías obtener el precio del bloque seleccionado
+    // Puedes pasarlo como data attribute en el botón de selección
+    precioInput.value = document.querySelector(`.select-seats-btn[data-bloque-id="${currentBloqueId}"]`).dataset.precio;
+    form.appendChild(precioInput);
+    
+    // Añadir asientos seleccionados
+    selectedSeats.forEach((seat, index) => {
+        const seatInput = document.createElement('input');
+        seatInput.type = 'hidden';
+        seatInput.name = `asientos[${index}]`;
+        seatInput.value = seat;
+        form.appendChild(seatInput);
+    });
+    
+    // Añadir formulario al body y enviar
+    document.body.appendChild(form);
+    form.submit();
+    
+    // Cerrar modal
+    seatModal.hide();
+});
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Información de Entrada</title>
+</head>
+<body>
+    <div style="text-align: center; margin-top: 50px;">
+        <h1>Tu Entrada para <%= entrada.evento_nombre %></h1>
+        <p><strong>Estado:</strong> 
+            <span style="color: <%= entrada.estado === 'No canjeado' ? 'green' : 'red' %>">
+                <%= entrada.estado %>
+            </span>
+        </p>
+        <p><strong>Bloque:</strong> <%= entrada.bloque_nombre %></p>
+        <p><strong>Asiento:</strong> <%= entrada.asiento %></p>
+        <p><strong>Fecha de compra:</strong> <%= new Date(entrada.fecha_compra).toLocaleDateString() %></p>
+        
+        <% if (entrada.estado === 'Canjeado') { %>
+            <p><strong>Canjeado el:</strong> <%= new Date(entrada.fecha_canje).toLocaleString() %></p>
+        <% } %>
+    </div>
+</body>
+</html>

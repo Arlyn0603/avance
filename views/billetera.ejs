@@ -16,33 +16,36 @@
             <a href="/" class="logo">
                 <img src="/img/logo.png" alt="EasyTicket">
             </a>
-            <nav class="nav">
-                <a href="#">Conciertos</a>
-                <a href="#">Deportes</a>
-                <a href="#">Teatro</a>
-                <a href="#">Culturales</a>
-                <a href="#">Comedia</a>
-                <a href="#">Festivales</a>
-            </nav>
             <% if (user) { %>
-                <!-- Botón de perfil (visible cuando el usuario está autenticado) -->
-                <div class="profile-dropdown">
-                    <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
-                        <img src="/img/user.png" alt="Perfil">
-                        <span id="profileEmail"><%= user.email %></span> <!-- Mostrar el correo aquí -->
-                    </button>
-                    <div class="dropdown-menu" id="dropdownMenu">
-                        <a href="/historial">Historial</a> <!-- Cambiado de "Perfil" a "Historial" -->
-                        <a href="/billetera">Billetera</a>
-                        <a href="/atencion/tickets/vista">Mis Tickets</a>
-                        <a href="/logout">Cerrar sesión</a>
+                <% if (user.tipo === 'Admin') { %>
+                    <!-- Header para Admin -->
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/administrador">
+                                <img src="/img/user.png" alt="Administrador">
+                            </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                        </button>
                     </div>
-                </div>
+                <% } else { %>
+                    <!-- Header para Cliente -->
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/usuario">
+                                <img src="/img/user.png" alt="Usuario">
+                            </a><span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } %>
             <% } else { %>
-                <!-- Botón de iniciar sesión (visible cuando el usuario no está autenticado) -->
+                <!-- Header para usuarios no autenticados -->
+                <button class="search-btn" onclick="toggleSearchSection()">
+                    <img src="/img/lupa.png" alt="Buscar" width="20">
+                </button>
                 <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
             <% } %>
+            
         </header>
+
 
         <script>
             // Función para alternar el menú de perfil
@@ -78,6 +81,7 @@
                     <div class="payment-method-item">
                         <p><%= tarjeta.TipoTarjeta %> ···· <%= tarjeta.UltimosCuatroDigitos %></p>
                         <p>Titular: <%= tarjeta.NombreTitular %></p>
+                        <p>Saldo: ₡<%= tarjeta.Saldo.toFixed(2) %></p> <!-- Muestra el saldo de la tarjeta -->
                         <button class="delete-btn" onclick="eliminarTarjeta('<%= tarjeta.NumeroTarjeta %>')">Eliminar</button>
                     </div>
                 <% }); %>
@@ -89,13 +93,14 @@
             
             <!-- Formulario para agregar tarjeta (oculto inicialmente) -->
             <form id="formularioTarjeta" class="formulario-tarjeta" style="display: none;" action="/billetera/agregar-tarjeta" method="POST">
-                <input type="hidden" id="userEmail" name="userEmail"> <!-- Campo oculto para el correo -->
+                <!-- Cambia el campo oculto para el correo -->
+                <input type="hidden" id="userEmail" name="userEmail" value="<%= user.email %>">
                     
                 <label for="numeroTarjeta">Número de Tarjeta:</label>
                 <input type="text" id="numeroTarjeta" name="numeroTarjeta" maxlength="16" required>
                     
                 <label for="nombreTitular">Nombre del Titular:</label>
-                <input type="text" id="nombreTitular" name="nombreTitular" required>
+                <input type="text" id="nombreTitular" name="nombreTitular" value="<%= user.firstName %> <%= user.lastName %>" readonly> <!-- Bloqueado y precargado -->
                     
                 <label for="fechaExpiracion">Fecha de Expiración (MM/YY):</label>
                 <input type="text" id="fechaExpiracion" name="fechaExpiracion" placeholder="MM/YY" required>
@@ -105,8 +110,9 @@
                     
                 <label for="tipoTarjeta">Tipo de Tarjeta:</label>
                 <select id="tipoTarjeta" name="tipoTarjeta" required>
-                    <option value="Crédito">Crédito</option>
-                    <option value="Débito">Débito</option>
+                    <option value="Visa">Visa</option>
+                    <option value="MasterCard">MasterCard</option>
+                    <option value="American Express">American Express</option>
                 </select>
                 <label for="saldo">Saldo:</label>
                 <input type="number" id="saldo" name="saldo" step="0.01" required>
@@ -152,15 +158,62 @@
 
         
 
-        document.getElementById('formularioTarjeta').addEventListener('submit', function (event) {
-            // Obtener el correo electrónico del <span>
-            const userEmail = document.getElementById('profileEmail').textContent;
+        document.getElementById('formularioTarjeta').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            
+            // Validaciones básicas
+            const numeroTarjeta = document.getElementById('numeroTarjeta').value;
+            const fechaExpiracion = document.getElementById('fechaExpiracion').value;
+            const cvv = document.getElementById('codigoSeguridad').value;
+            
+            if (!/^\d{16}$/.test(numeroTarjeta)) {
+                alert('Número de tarjeta debe tener 16 dígitos');
+                return;
+            }
+            
+            if (!/^\d{2}\/\d{2}$/.test(fechaExpiracion)) {
+                alert('Formato de fecha inválido (MM/YY)');
+                return;
+            }
+            
+            if (!/^\d{3}$/.test(cvv)) {
+                alert('CVV debe tener 3 dígitos');
+                return;
+            }
 
-            // Asignar el correo electrónico al campo oculto
-            document.getElementById('userEmail').value = userEmail;
+            // Crear objeto con los datos del formulario
+            const formData = {
+                numeroTarjeta: numeroTarjeta,
+                nombreTitular: document.getElementById('nombreTitular').value,
+                fechaExpiracion: fechaExpiracion,
+                codigoSeguridad: cvv,
+                tipoTarjeta: document.getElementById('tipoTarjeta').value,
+                saldo: document.getElementById('saldo').value,
+                userEmail: document.getElementById('userEmail').value
+            };
 
-            // Verificar que el correo se haya asignado correctamente
-            console.log('Correo electrónico asignado:', userEmail);
+            try {
+                const response = await fetch('/billetera/agregar-tarjeta', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData),
+                    credentials: 'include' // Para incluir las cookies de sesión
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Tarjeta agregada correctamente');
+                    window.location.reload();
+                } else {
+                    alert(result.message || 'Error al agregar tarjeta');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al conectar con el servidor');
+            }
         });
 
     </script>

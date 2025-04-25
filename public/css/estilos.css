@@ -119,8 +119,65 @@ body, html {
 
 /* Estilos para el menú desplegable */
 .profile-dropdown {
-    position: relative;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    gap: 10px; /* espacio entre botones */
+}
+
+.profile-dropdown .chatbot-btn img,
+.profile-dropdown .search-btn img {
+    vertical-align: middle;
+    height: 35px;
+    width: 35px;
+}
+#profileButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    height: 40px;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+#profileButton:hover {
+    background-color: #aaff00;
+    color: black;
+    transition: all 0.2s ease;
+}
+
+#profileButton img {
+    width: 24px;
+    height: 24px;
+}
+
+#profileEmail {
+    font-weight: bold;
+}
+
+#loginButton {
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    height: 40px; /* este valor fija la altura para que coincida */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#loginButton:hover {
+    background-color: #aaff00;
+    color: black;
+    transition: all 0.2s ease;
 }
 
 .profile-btn {
@@ -156,4 +213,295 @@ body, html {
     height: 30px; /* Asegura que la imagen tenga un tamaño proporcional */
     border-radius: 50%; /* Hace que la imagen tenga bordes redondeados */
     object-fit: cover; /* Asegura que la imagen mantenga su proporción sin deformarse */
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto; /* Permite desplazamiento vertical */
+    background-color: black;
+    margin: 0;
+    padding: 0;
+}
+
+.principal {
+    width: 100%;
+    min-height: 100vh; /* Cambiado de height a min-height para permitir crecimiento */
+    display: flex;
+    flex-direction: column;
+    background-color: black;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: rgba(0, 0, 0, 0.5); /* Fondo semi-transparente */
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2); /* Línea más oscura */
+    position: absolute;
+    width: 100%;
+}
+.logo {
+    color: #aaff00;
+    font-size: 24px;
+    font-weight: bold;
+}
+.logo img {
+    width: 80px; /* Ajusta este valor según el tamaño deseado */
+    height: auto; /* Mantiene la proporción */
+}
+
+.nav {
+    display: flex;
+    gap: 20px;
+}
+.nav a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+.cta-buttons {
+    display: flex;
+    gap: 15px;
+}
+.cta-buttons button {
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+}
+.cta-buttons .search-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+.cta-buttons .search-btn img {
+    width: 20px;
+    height: 20px;
+}
+.hero {
+    text-align: left;
+    padding: 80px 20px;
+    background: url('../img/fondo.png') no-repeat center center/cover;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 50px;
+}
+
+.hero h1 {
+    font-size: 48px;
+    font-weight: bold;
+    color: white;
+}
+.hero .highlight {
+    color: #aaff00;
+    font-size: 32px;
+    font-weight: bold;
+}
+.hero p {
+    font-size: 18px;
+    color: white;
+    max-width: 600px;
+}
+.hero button {
+    margin-top: 20px;
+    background-color: #444;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.events-bar {
+    display: flex;
+    justify-content: space-around;
+    background-color: #aaff00;
+    padding: 15px;
+    color: black;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Estilos para el menú desplegable */
+.profile-dropdown {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* espacio entre botones */
+}
+
+.profile-dropdown .chatbot-btn img,
+.profile-dropdown .search-btn img {
+    vertical-align: middle;
+    height: 35px;
+    width: 35px;
+}
+#profileButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    height: 40px;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+#profileButton:hover {
+    background-color: #aaff00;
+    color: black;
+    transition: all 0.2s ease;
+}
+
+#profileButton img {
+    width: 24px;
+    height: 24px;
+}
+
+#profileEmail {
+    font-weight: bold;
+}
+
+#loginButton {
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    height: 40px; /* este valor fija la altura para que coincida */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#loginButton:hover {
+    background-color: #aaff00;
+    color: black;
+    transition: all 0.2s ease;
+}
+
+.profile-btn {
+    background: #444;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    padding: 10px;
+    z-index: 1000;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    text-decoration: none;
+    color: #333;
+}
+
+.dropdown-menu a:hover {
+    background-color: #f1f1f1;
+}
+
+.profile-btn img {
+    width: 30px; /* Establece un tamaño más pequeño para la imagen */
+    height: 30px; /* Asegura que la imagen tenga un tamaño proporcional */
+    border-radius: 50%; /* Hace que la imagen tenga bordes redondeados */
+    object-fit: cover; /* Asegura que la imagen mantenga su proporción sin deformarse */
+}
+
+/* Estilos para pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+    .header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    .logo {
+        font-size: 20px;
+    }
+
+    .nav {
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hero {
+        padding: 40px 10px;
+        align-items: center;
+        text-align: center;
+    }
+
+    .hero h1 {
+        font-size: 32px;
+    }
+
+    .hero .highlight {
+        font-size: 24px;
+    }
+
+    .hero p {
+        font-size: 16px;
+    }
+
+    .events-bar {
+        flex-direction: column;
+        text-align: center;
+        font-size: 16px;
+    }
+}
+
+/* Estilos para pantallas medianas (tablets) */
+@media (max-width: 1024px) {
+    .header {
+        padding: 10px 20px;
+    }
+
+    .nav {
+        gap: 15px;
+    }
+
+    .hero h1 {
+        font-size: 40px;
+    }
+
+    .hero .highlight {
+        font-size: 28px;
+    }
+
+    .hero p {
+        font-size: 17px;
+    }
+
+    .events-bar {
+        font-size: 17px;
+    }
 }

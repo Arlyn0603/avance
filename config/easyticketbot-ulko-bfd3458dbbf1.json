@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "easyticketbot-ulko",
+  "private_key_id": "bfd3458dbbf173d3fc128e0a0aa5e806cfcdbb0d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDFzSZM8YxZqxzQ\np1p3NelrC1OCs6dCb0TzanyddtIIbh3ndHetRuiOcmtKdXS9RZsq2wenqEREJuN/\nuvXDgayraZbYsetbVPqpV4JGm3DnpkhoJ8H5O/vXjCGqd9I/FcWNQp0SU4BxEJay\n5FyDkEtkBqXfOq/2va7itYcpb/xKQegfdSVHJBc+JaSDJcmCnOvrcxJDcDAGQmQR\nZ4IwmbVYP1bnYFMywqGAHKwlNFXWX6yKFyIkp7bZoMBOUbK3pGfGfNuGikqcLdc2\nJAGvNWLrCyjAVIB1jEwCnxEX1oJEspgWHiQB3kUs5wGf4J8F0C2SE2xRIy4GLxpa\nMF++yUxZAgMBAAECggEAA92q9VdFudVsMGBK9ng/ZgQQR2ZNOzFLSNIgmh/BwmAr\nlbPbKG/xuOH/2pJR3CalfhiOjV5uqiHT8bHE3qO0zRtY00aj7dKq/P8MuOZOFjrz\n4JRBWGaNmSSAHnGt0mWRqT1/biWjZaJQPbIUpE4gSRXPrV2bZZBGwB/R4tORW96l\n19ISgFALTOSAwnULBbFUjpjP6rUKHEDa02RpdgbWh46CqUwINQ0v0fa8VaOlxxRk\nY89LAu3fAvgHrqPdDipUuV40Nc5o/dccUU7iuonoEzS8OBIfFMA7VVC/atCPg0U/\n8u+CS1y5m47/sD8fj+GpOl2cTDdLqCU1JxAJvxWK0QKBgQDhjXyUo88++e2U9Gdi\n6qmmGKOcQu9a3ZAy2MVz0fsdszJGWAMBhC/u7rnpoaphVseFywm3WFNenvOirb19\nDfNjeH1rKAfJG5WbKZdJ8mwOo6FUNmFXn9xfEunIiARAzSxR/KigIqOeutJtMoLt\n+DjObD1wGYPjUtgDyeFqrUNPcQKBgQDggKZU86rdBqAb9QNoXsTUXZd4sj2QrBaV\nNBauRcbUH9vt/0Y757SGawA3rwmozgG8Oo5wkyRdQfzn7hEcMxH/ZKv0k6Y/MpPb\nIatqFKY6/6zmPZV+QHoFQqKf6iOVqwlqUAe4HK7m2EoLONCGwYx1DW9Sni74EaC6\nbDHqU4unaQKBgQC2wZvGHIzabEwTO41h2t4nVSOMg7fJmmkyqe4jkGq2f/ImiT22\nRtNH+GrvYSzaviPgxslSo+C5dHXYxIoa/+jMGl8VKlRUoWMxXBvXsPPZUMBxqbZp\n93/qETsYXw2DLDvTGrPPPQHypVHHZPwtscjliVKmuCXjVcbuGu/pLgayIQKBgDct\nBzQ7ytOVrEYSuqqtF/0Fn5OnYuAqm0ZCTgy403wQ9HGS2sUgVkrvA1esKliVgPGt\nBpL+ZuKQtEKgTQ48MwEs0eJDY4mGubYSmVlyB8TaT7kqi5JC8HpYfTWGSwaeyaqa\nTrteOVI8+D230fA8o3OlQKXygKKxWmpW6xGnRNx5AoGBAJOgb70T1bZXKAnl12p0\nnpfoMx5Cle8ib9HtHdO4xdFB4PM+i010HjGMry1GjcJNUzGh/sp5kwll0tpeLtNY\nFZSRlxahyvWc/pIzGPHbGWHxTm5Nv+bxerlvSSbp2jQrKObp/m0iHesIXv80fv1o\n7otxQtoounYkRRXdzwICUHzk\n-----END PRIVATE KEY-----\n",
+  "client_email": "dialogflow-easyticket@easyticketbot-ulko.iam.gserviceaccount.com",
+  "client_id": "105161002945810056062",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/dialogflow-easyticket%40easyticketbot-ulko.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

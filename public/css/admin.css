@@ -1,0 +1,82 @@
+/* Estilos generales para el panel de administración */
+body {
+    background-color: #111;
+    color: #aaff00;
+    font-family: Arial, sans-serif;
+    padding-top: 100px; /* para que el contenido esté debajo del header */
+}
+
+.admin-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #1b1b1b;
+    border-radius: 8px;
+    box-shadow: 0 0 10px #64DD17;
+}
+
+.admin-container h1 {
+    color: #aaff00;
+    border-bottom: 2px solid #64DD17;
+    padding-bottom: 10px;
+}
+
+.filtro-group {
+    margin-bottom: 15px;
+}
+
+.filtro-group label {
+    display: inline-block;
+    width: 150px;
+    font-weight: bold;
+    color: #aaff00;
+}
+
+.btn-buscar,
+.btn-actualizar,
+.btn-comprar {
+    background-color: #64DD17;
+    color: black;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: bold;
+}
+
+.btn-buscar:hover,
+.btn-actualizar:hover,
+.btn-comprar:hover {
+    background-color: #45a029;
+    color: white;
+}
+
+.evento-card {
+    border: 1px solid #45a029;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #1c1c1c;
+    color: #e0ffe0;
+}
+
+.evento-card h3 {
+    margin-top: 0;
+    color: #aaff00;
+}
+
+.cantidad-input {
+    padding: 5px;
+    border: 1px solid #64DD17;
+    border-radius: 4px;
+    background-color: #111;
+    color: #aaff00;
+}
+
+.agotado {
+    color: #e74c3c;
+    font-weight: bold;
+    text-align: center;
+    margin-top: 10px;
+}

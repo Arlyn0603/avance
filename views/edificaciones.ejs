@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Edificaciones</title>
+    <link rel="stylesheet" href="/css/edificaciones.css">
+    <link rel="stylesheet" href="/css/usuario.css">
+    <link rel="stylesheet" href="/css/estilos.css">
+    <link rel="stylesheet" href="/css/carrito.css">
+    <link rel="stylesheet" href="/css/secciones.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* Fondo negro */
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+        }
+
+       
+
+        h1, h2, h3 {
+            color: #C1FF00;
+            text-align: center;
+        }
+
+        /* Formulario */
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #C1FF00;
+        }
+
+        input, textarea, select, button {
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid #C1FF00;
+            border-radius: 8px;
+            background-color: #000;
+            color: #fff;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #AEF200;
+        }
+
+        button {
+            font-weight: bold;
+            background-color: #C1FF00;
+            color: #000;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #AEF200;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+        }
+
+        /* Lista de lugares */
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #222;
+            border: 1px solid #444;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        li a {
+            color: #C1FF00;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        li a:hover {
+            text-decoration: underline;
+        }
+
+        li img {
+            width: 100px;
+            height: auto;
+            border-radius: 8px;
+            border: 2px solid #C1FF00;
+        }
+
+        /* Estilos para bloques */
+        .bloque {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #222;
+            border-radius: 8px;
+            border: 1px solid #444;
+        }
+
+        .bloque-oculto {
+            display: none;
+        }
+
+        .resumen-bloque {
+            background-color: #333;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .resumen-bloque:hover {
+            background-color: #444;
+        }
+
+        .botones-bloque {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .error {
+            color: #ff5555;
+            font-size: 0.9em;
+            margin-top: -10px;
+        }
+
+        .nombre-error {
+            color: #ff5555;
+            font-size: 0.9em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <section class="principal">
+        <header class="header">
+            <a href="/" class="logo">
+                <img src="/img/logo.png" alt="EasyTicket">
+            </a>
+               
+            <% if (user) { %>
+                <% if (user.tipo === 'Admin') { %>
+                    <!-- Header para Admin -->
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/administrador">
+                                <img src="/img/user.png" alt="Administrador">
+                            </a>                            <span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } else { %>
+                    <!-- Header para Cliente -->
+                    <button class="search-btn" onclick="toggleSearchSection()">
+                        <img src="/img/lupa.png" alt="Buscar" width="20">
+                    </button>
+                    <div class="profile-dropdown">
+                        <button id="profileButton" class="profile-btn" onclick="toggleProfileMenu()">
+                            <a href="/usuario">
+                                <img src="/img/user.png" alt="Usuario">
+                            </a><span id="profileEmail"><%= user.firstName %></span>
+                        </button>
+                    </div>
+                <% } %>
+            <% } else { %>
+                <!-- Header para usuarios no autenticados -->
+                <button class="search-btn" onclick="toggleSearchSection()">
+                    <img src="/img/lupa.png" alt="Buscar" width="20">
+                </button>
+                <button id="loginButton" onclick="openModal()">Iniciar sesión</button>
+            <% } %>
+        </header>
+
+        <h1>Gestión de Edificaciones</h1>
+
+        <!-- Formulario unificado -->
+        <form id="edificacionForm" enctype="multipart/form-data" method="POST" action="/edificaciones/crear">
+            <!-- Sección Lugar -->
+            <section>
+                <h2>Información del Lugar</h2>
+                <label for="nombre">Nombre del Lugar:</label>
+                <input type="text" id="nombre" name="nombre" required>
+                
+                <label for="direccion">Dirección:</label>
+                <input type="text" id="direccion" name="direccion">
+                
+                <label for="descripcion">Descripción:</label>
+                <textarea id="descripcion" name="descripcion"></textarea>
+                
+                <label for="capacidad">Capacidad Total:</label>
+                <input type="number" id="capacidad" name="capacidad" required>
+                <div id="capacidad-error" class="error"></div>
+                
+                <label for="imagen">Imagen del Lugar:</label>
+                <input type="file" id="imagen" name="imagen" accept="image/*">
+            </section>
+
+            <!-- Sección Bloques -->
+            <section>
+                <h2>Bloques y Asientos</h2>
+                <div id="resumenBloques"></div>
+                <div id="bloquesContainer">
+                    <div class="bloque" id="bloque-actual">
+                        <h3>Bloque #1</h3>
+                        <label>Nombre del Bloque:</label>
+                        <input type="text" name="bloques[0][nombre]" required class="nombre-bloque">
+                        <div id="nombre-error-0" class="nombre-error"></div>
+
+                        <label>Cantidad de Asientos:</label>
+                        <input type="number" name="bloques[0][asientos]" min="1" required class="asientos-input">
+                        <div id="asientos-error-0" class="error"></div>
+
+                        <label>Tipo de Bloque:</label>
+                        <select name="bloques[0][tipo]">
+                            <option value="general">General</option>
+                            <option value="vip">VIP</option>
+                            <option value="preferencial">Preferencial</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="botones-bloque">
+                    <button type="button" id="addBloqueButton">+ Agregar Otro Bloque</button>
+                    <button type="button" id="finalizarBloqueButton">Finalizar Este Bloque</button>
+                </div>
+            </section>
+
+            <button type="submit">Guardar Todo</button>
+        </form>
+
+        <!-- Lista de Bloques por Lugar (Visualización) -->
+        <section>
+            <h2>Resumen de Bloques</h2>
+            <div id="listaBloques">
+                <p>No hay bloques creados aún</p>
+            </div>
+        </section>
+
+        
+        <!-- Lista de Lugares -->
+        <section>
+            <h2>Lista de Lugares</h2>
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Dirección</th>
+                        <th>Descripción</th>
+                        <th>Capacidad</th>
+                        <th>Imagen</th>
+                    </tr>
+                </thead>
+                <!-- Lugares -->
+                <tbody>
+                    <% lugares.forEach(lugar => { %>
+                        <tr>
+                            <td><%= lugar.id %></td>
+                            <td><%= lugar.nombre %></td>
+                            <td><%= lugar.direccion %></td>
+                            <td><%= lugar.capacidad %></td>
+                            <td><%= lugar.descripcion %></td>
+                            <td>
+                                <% if (lugar.imagen) { %>
+                                    <img src="<%= lugar.imagen %>" alt="Imagen del lugar" style="max-width: 100px; max-height: 100px;">
+                                <% } else { %>
+                                    Sin imagen
+                                <% } %>
+                            </td>
+                            <td>
+                                <button class="edit-btn" data-lugar='<%- JSON.stringify(lugar) %>'>Editar</button>                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Lista de Bloques -->
+        <section>
+            <h2>Lista de Bloques</h2>
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% bloques.forEach(bloque => { %>
+                        <tr>
+                            <td><%= bloque.id %></td>
+                            <td><%= bloque.nombre %></td>
+                            <td><%= bloque.tipo %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- Lista de Asientos -->
+        <section>
+            <h2>Lista de Asientos</h2>
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Bloque ID</th>
+                        <th>Cantidad</th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% asientos.forEach(asiento => { %>
+                        <tr>
+                            <td><%= asiento.id %></td>
+                            <td><%= asiento.bloqueId %></td>
+                            <td><%= asiento.cantidad %></td>
+                            <td><%= asiento.tipo %></td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </section>
+    </section>
+
+    <div id="editLugarModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditLugarModal()">&times;</span>
+            <h2>Editar Lugar</h2>
+            <form id="editLugarForm" onsubmit="submitEditLugar(event)">
+                <input type="hidden" id="editLugarId">
+                <label for="editLugarNombre">Nombre:</label>
+                <input type="text" id="editLugarNombre" required>
+                
+                <label for="editLugarDireccion">Dirección:</label>
+                <input type="text" id="editLugarDireccion">
+                
+                <label for="editLugarDescripcion">Descripción:</label>
+                <textarea id="editLugarDescripcion"></textarea>
+                
+                <label for="editLugarCapacidad">Capacidad:</label>
+                <input type="number" id="editLugarCapacidad" required>
+                
+                <button type="submit">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    let bloqueCount = 1;
+let bloquesCreados = [];
+let capacidadTotal = 0;
+let capacidadUtilizada = 0;
+let bloquesData = {};
+
+// Obtener elementos del DOM
+const capacidadInput = document.getElementById('capacidad');
+const capacidadError = document.getElementById('capacidad-error');
+const addBloqueButton = document.getElementById('addBloqueButton');
+const finalizarBloqueButton = document.getElementById('finalizarBloqueButton');
+const bloquesContainer = document.getElementById('bloquesContainer');
+const resumenBloques = document.getElementById('resumenBloques');
+const listaBloques = document.getElementById('listaBloques');
+const edificacionForm = document.getElementById('edificacionForm');
+
+// Función para abrir el modal de edición
+function openEditLugarModal(lugar) {
+    console.log('Datos del lugar:', lugar);
+    try {
+        document.getElementById('editLugarId').value = lugar.id || '';
+        document.getElementById('editLugarNombre').value = lugar.nombre || '';
+        document.getElementById('editLugarDireccion').value = lugar.direccion || '';
+        document.getElementById('editLugarDescripcion').value = lugar.descripcion || '';
+        document.getElementById('editLugarCapacidad').value = lugar.capacidad || '';
+        document.getElementById('editLugarModal').style.display = 'block';
+    } catch (error) {
+        console.error('Error al abrir el modal de edición:', error);
+        alert('Ocurrió un error al intentar abrir el modal de edición.');
+    }
+}
+
+function closeEditLugarModal() {
+    try {
+        document.getElementById('editLugarModal').style.display = 'none';
+    } catch (error) {
+        console.error('Error al cerrar el modal de edición:', error);
+        alert('Ocurrió un error al intentar cerrar el modal de edición.');
+    }
+}
+
+async function submitEditLugar(event) {
+    event.preventDefault();
+
+    // Obtener los valores del formulario
+    const id = document.getElementById('editLugarId').value;
+    const nombre = document.getElementById('editLugarNombre').value.trim();
+    const direccion = document.getElementById('editLugarDireccion').value.trim();
+    const descripcion = document.getElementById('editLugarDescripcion').value.trim();
+    const capacidad = parseInt(document.getElementById('editLugarCapacidad').value, 10);
+
+    // Validar los campos antes de enviar
+    if (!nombre || isNaN(capacidad) || capacidad <= 0) {
+        alert('Por favor, complete todos los campos correctamente.');
+        return;
+    }
+
+    try {
+        // Enviar la solicitud al servidor
+        const response = await fetch(/edificaciones/lugares/${id}, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ nombre, direccion, descripcion, capacidad }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.success) {
+            alert(result.message || 'Lugar actualizado exitosamente.');
+            window.location.reload();
+        } else {
+            console.error('Error en la respuesta del servidor:', result);
+            alert(result.message || 'Error al actualizar el lugar.');
+        }
+    } catch (err) {
+        console.error('Error al enviar la solicitud:', err);
+        alert('Ocurrió un error al conectar con el servidor. Inténtelo de nuevo más tarde.');
+    }
+}
+
+// Configurar event listeners para los botones de edición
+function setupEditButtons() {
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            // Obtener el objeto lugar directamente (ya que usamos <%- JSON.stringify() %>)
+            const lugar = JSON.parse(this.getAttribute('data-lugar'));
+            openEditLugarModal(lugar);
+        });
+    });
+}
+
+// Inicialización
+document.addEventListener('DOMContentLoaded', function() {
+    capacidadInput.addEventListener('change', actualizarCapacidadTotal);
+    addBloqueButton.addEventListener('click', agregarNuevoBloque);
+    finalizarBloqueButton.addEventListener('click', finalizarBloqueActual);
+    edificacionForm.addEventListener('submit', enviarFormulario);
+    
+    // Configurar el modal de edición
+    document.getElementById('editLugarForm').addEventListener('submit', submitEditLugar);
+    
+    // Configurar botones de edición
+    setupEditButtons();
+
+    bloquesData[0] = { nombre: '', asientos: 0, tipo: 'general' };
+});
+
+
+        // Actualizar capacidad total
+        function actualizarCapacidadTotal() {
+            capacidadTotal = parseInt(this.value) || 0;
+            capacidadError.textContent = '';
+            
+            if (capacidadTotal <= 0) {
+                capacidadError.textContent = 'La capacidad debe ser mayor a cero';
+                return;
+            }
+            
+            if (capacidadUtilizada > capacidadTotal) {
+                capacidadError.textContent = La capacidad utilizada (${capacidadUtilizada}) excede la capacidad total;
+            }
+            
+            actualizarEstadoBotones();
+        }
+
+        // Agregar nuevo bloque
+        function agregarNuevoBloque() {
+            const bloqueActual = document.getElementById('bloque-actual');
+            const index = bloqueCount - 1;
+            
+            // Validar bloque actual
+            if (!validarBloqueActual(index)) {
+                return;
+            }
+            
+            // Guardar datos del bloque actual
+            guardarDatosBloque(index);
+            
+            // Ocultar TODOS los bloques existentes
+            const bloques = document.querySelectorAll('.bloque');
+            bloques.forEach(bloque => {
+                bloque.classList.add('bloque-oculto');
+                bloque.removeAttribute('id'); // Quitamos el id para que solo el nuevo sea "bloque-actual"
+            });
+            
+            // Agregar resumen del bloque actual
+            agregarResumenBloque(index);
+            
+            // Crear nuevo bloque
+            const nuevoBloque = document.createElement('div');
+            nuevoBloque.classList.add('bloque');
+            nuevoBloque.id = 'bloque-actual';
+            nuevoBloque.innerHTML = `
+                <h3>Bloque #${++bloqueCount}</h3>
+                <label>Nombre del Bloque:</label>
+                <input type="text" name="bloques[${bloqueCount-1}][nombre]" required class="nombre-bloque">
+                <div id="nombre-error-${bloqueCount-1}" class="nombre-error"></div>
+
+                <label>Cantidad de Asientos:</label>
+                <input type="number" name="bloques[${bloqueCount-1}][asientos]" min="1" required class="asientos-input">
+                <div id="asientos-error-${bloqueCount-1}" class="error"></div>
+
+                <label>Tipo de Bloque:</label>
+                <select name="bloques[${bloqueCount-1}][tipo]">
+                    <option value="general">General</option>
+                    <option value="vip">VIP</option>
+                    <option value="preferencial">Preferencial</option>
+                </select>
+            `;
+            
+            // Agregar al contenedor
+            bloquesContainer.appendChild(nuevoBloque);
+            
+            // Inicializar datos del nuevo bloque
+            bloquesData[bloqueCount-1] = {
+                nombre: '',
+                asientos: 0,
+                tipo: 'general'
+            };
+            
+            // Configurar evento para validar nombre único
+            const nombreInput = nuevoBloque.querySelector('.nombre-bloque');
+            nombreInput.addEventListener('blur', function() {
+                validarNombreUnico(this, bloqueCount-1);
+            });
+            
+            // Actualizar estado de los botones
+            actualizarEstadoBotones();
+        }
+
+        // Finalizar bloque actual sin agregar otro
+        function finalizarBloqueActual() {
+            const index = bloqueCount - 1;
+            
+            // Validar bloque actual
+            if (!validarBloqueActual(index)) {
+                return;
+            }
+            
+            // Guardar datos del bloque actual
+            guardarDatosBloque(index);
+            
+            // Ocultar TODOS los bloques existentes
+            const bloques = document.querySelectorAll('.bloque');
+            bloques.forEach(bloque => {
+                bloque.classList.add('bloque-oculto');
+                bloque.removeAttribute('id');
+            });
+            
+            // Agregar resumen del bloque actual
+            agregarResumenBloque(index);
+            
+            // Deshabilitar botones de agregar/finalizar
+            addBloqueButton.disabled = true;
+            finalizarBloqueButton.disabled = true;
+            
+            // Actualizar lista de bloques
+            actualizarListaBloques();
+        }
+
+        // Validar nombre único
+        function validarNombreUnico(input, currentIndex) {
+            const nombre = input.value.trim();
+            const errorElement = document.getElementById(nombre-error-${currentIndex});
+            
+            if (nombre === '') {
+                errorElement.textContent = '';
+                return true;
+            }
+            
+            // Verificar si el nombre ya existe en otros bloques
+            for (const [index, bloque] of Object.entries(bloquesData)) {
+                if (parseInt(index) !== currentIndex && bloque.nombre.toLowerCase() === nombre.toLowerCase()) {
+                    errorElement.textContent = 'Este nombre de bloque ya existe';
+                    return false;
+                }
+            }
+            
+            errorElement.textContent = '';
+            return true;
+        }
+
+        // Validar bloque actual
+        function validarBloqueActual(index) {
+            const nombreInput = document.querySelector(input[name="bloques[${index}][nombre]"]);
+            const asientosInput = document.querySelector(input[name="bloques[${index}][asientos]"]);
+            const nombreErrorElement = document.getElementById(nombre-error-${index});
+            const asientosErrorElement = document.getElementById(asientos-error-${index});
+            
+            const nombre = nombreInput.value.trim();
+            const asientos = parseInt(asientosInput.value) || 0;
+            
+            // Validar nombre
+            if (nombre === '') {
+                nombreErrorElement.textContent = 'Por favor ingrese un nombre para el bloque';
+                nombreInput.focus();
+                return false;
+            }
+            
+            // Validar nombre único
+            if (!validarNombreUnico(nombreInput, index)) {
+                nombreInput.focus();
+                return false;
+            }
+            
+            // Validar asientos
+            if (asientos <= 0) {
+                asientosErrorElement.textContent = 'La cantidad de asientos debe ser mayor a cero';
+                asientosInput.focus();
+                return false;
+            }
+            
+            // Validar capacidad total
+            if (capacidadTotal <= 0) {
+                capacidadError.textContent = 'Primero debe establecer una capacidad total válida';
+                capacidadInput.focus();
+                return false;
+            }
+            
+            // Validar que no exceda la capacidad disponible
+            const nuevaCapacidadUtilizada = capacidadUtilizada + asientos;
+            if (nuevaCapacidadUtilizada > capacidadTotal) {
+                asientosErrorElement.textContent = La capacidad disponible es ${capacidadTotal - capacidadUtilizada};
+                asientosInput.focus();
+                return false;
+            }
+            
+            nombreErrorElement.textContent = '';
+            asientosErrorElement.textContent = '';
+            return true;
+        }
+
+        // Guardar datos del bloque
+        function guardarDatosBloque(index) {
+            const nombreInput = document.querySelector(input[name="bloques[${index}][nombre]"]);
+            const asientosInput = document.querySelector(input[name="bloques[${index}][asientos]"]);
+            const tipoSelect = document.querySelector(select[name="bloques[${index}][tipo]"]);
+            
+            bloquesData[index] = {
+                nombre: nombreInput.value.trim(),
+                asientos: parseInt(asientosInput.value) || 0,
+                tipo: tipoSelect.value
+            };
+            
+            // Actualizar capacidad utilizada
+            capacidadUtilizada += bloquesData[index].asientos;
+        }
+
+        // Agregar resumen del bloque
+        function agregarResumenBloque(index) {
+            const bloque = bloquesData[index];
+            
+            const resumenDiv = document.createElement('div');
+            resumenDiv.classList.add('resumen-bloque');
+            resumenDiv.innerHTML = `
+                <strong>Bloque ${index + 1}:</strong> ${bloque.nombre} - ${bloque.asientos} asientos (${bloque.tipo})
+                <button type="button" class="editar-bloque" data-bloque="${index}">Editar</button>
+            `;
+            
+            resumenBloques.appendChild(resumenDiv);
+            
+            // Configurar evento para editar
+            resumenDiv.querySelector('.editar-bloque').addEventListener('click', function() {
+                editarBloque(index);
+            });
+        }
+
+        // Editar bloque existente
+        function editarBloque(index) {
+            // Restaurar capacidad utilizada
+            capacidadUtilizada -= bloquesData[index].asientos;
+            
+            // Eliminar el resumen del bloque
+            const resumen = Array.from(resumenBloques.children).find(child => 
+                child.querySelector(button[data-bloque="${index}"])
+            );
+            if (resumen) resumen.remove();
+            
+            // Mostrar el bloque para edición
+            const bloques = Array.from(bloquesContainer.children);
+            const bloqueToEdit = bloques[index];
+            
+            // Ocultar todos los bloques
+            bloques.forEach(bloque => bloque.classList.add('bloque-oculto'));
+            
+            // Mostrar el bloque a editar
+            bloqueToEdit.classList.remove('bloque-oculto');
+            bloqueToEdit.id = 'bloque-actual';
+            
+            // Actualizar contador
+            bloqueCount = index + 1;
+            
+            // Actualizar estado de los botones
+            actualizarEstadoBotones();
+            
+            // Actualizar lista de bloques
+            actualizarListaBloques();
+        }
+
+        // Actualizar estado de los botones
+        function actualizarEstadoBotones() {
+            // Botón agregar bloque
+            addBloqueButton.disabled = capacidadUtilizada >= capacidadTotal;
+            addBloqueButton.title = capacidadUtilizada >= capacidadTotal ? 
+                'Capacidad total alcanzada' : '';
+            
+            // Botón finalizar bloque
+            finalizarBloqueButton.disabled = capacidadUtilizada >= capacidadTotal;
+        }
+
+        // Actualizar lista de bloques
+        function actualizarListaBloques() {
+            listaBloques.innerHTML = '';
+            
+            if (Object.keys(bloquesData).length === 0) {
+                listaBloques.innerHTML = '<p>No hay bloques creados aún</p>';
+                return;
+            }
+            
+            const ul = document.createElement('ul');
+            Object.entries(bloquesData).forEach(([index, bloque]) => {
+                if (bloque.nombre !== '') {
+                    const li = document.createElement('li');
+                    li.innerHTML = <strong>${bloque.nombre}:</strong> ${bloque.asientos} asientos (${bloque.tipo});
+                    ul.appendChild(li);
+                }
+            });
+            
+            listaBloques.appendChild(ul);
+            
+            // Agregar resumen de capacidad
+            const resumenCapacidad = document.createElement('p');
+            resumenCapacidad.innerHTML = `
+                <strong>Capacidad utilizada:</strong> ${capacidadUtilizada} / ${capacidadTotal}
+                ${capacidadUtilizada < capacidadTotal ? 
+                    ` (${capacidadTotal - capacidadUtilizada} sin asignar)` : ''}
+            `;
+            listaBloques.appendChild(resumenCapacidad);
+        }
+
+        // Enviar formulario
+     // Función para enviar el formulario
+     // Enviar formulario
+     async function enviarFormulario(e) {
+    e.preventDefault();
+
+    // 1) Validación básica del formulario
+    if (!edificacionForm.checkValidity()) {
+        alert('Por favor complete todos los campos requeridos');
+        return;
+    }
+
+    // 2) Creamos FormData
+    const formData = new FormData(edificacionForm);
+
+    // 3) Validaciones de capacidad
+    if (capacidadUtilizada === 0) {
+        alert('Debe crear al menos un bloque con asientos');
+        return;
+    }
+    
+    if (capacidadUtilizada < capacidadTotal) {
+        const confirmar = confirm(Hay ${capacidadTotal - capacidadUtilizada} asientos sin asignar. ¿Desea continuar?);
+        if (!confirmar) return;
+    }
+
+    // 4) Preparamos los bloques y eliminamos campos redundantes
+    const bloquesArray = Object.values(bloquesData)
+        .filter(b => b.nombre !== '')
+        .map(bloque => ({
+            nombre: bloque.nombre,
+            asientos: parseInt(bloque.asientos),
+            tipo: bloque.tipo || 'general' // Valor por defecto
+        }));
+
+    // Eliminamos los campos individuales de bloques que podrían interferir
+    for (let i = 0; i < bloqueCount; i++) {
+        formData.delete(bloques[${i}][nombre]);
+        formData.delete(bloques[${i}][asientos]);
+        formData.delete(bloques[${i}][tipo]);
+    }
+
+    // 5) Agregamos el JSON de bloques validado
+    formData.set('bloques', JSON.stringify(bloquesArray));
+
+    // 6) Mostrar feedback de carga
+    const submitButton = edificacionForm.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Enviando...';
+
+    try {
+        // 7) Envío al servidor
+        const response = await fetch('/edificaciones/crear', {
+            method: 'POST',
+            body: formData
+            // No establecer Content-Type manualmente, FormData lo hace automáticamente
+        });
+
+        if (!response.ok) {
+            throw new Error(HTTP error! status: ${response.status});
+        }
+
+        const result = await response.json();
+        
+        if (result.success) {
+            alert(result.message);
+            window.location.reload(); // Recargar para ver los cambios
+        } else {
+            throw new Error(result.message || 'Error desconocido del servidor');
+        }
+    } catch (err) {
+        console.error('Error al enviar el formulario:', err);
+        alert(Error: ${err.message});
+    } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Guardar Todo';
+    }
+}
+
+// Función para cargar lugares al iniciar
+async function cargarLugares() {
+    try {
+        const response = await fetch('/edificaciones');
+        
+        if (!response.ok) {
+            throw new Error(Error HTTP: ${response.status});
+        }
+        
+        const result = await response.json();
+            
+        if (result.success && result.data) {
+            actualizarListaLugares(result.data);
+        } else {
+            console.warn('La respuesta no contiene datos válidos:', result);
+        }
+    } catch (error) {
+        console.error('Error al cargar lugares:', error);
+        // Podrías mostrar un mensaje al usuario aquí si lo deseas
+    }
+}
+
+// Llamar a cargarLugares al cargar la página
+document.addEventListener('DOMContentLoaded', () => {
+    cargarLugares();
+    edificacionForm.addEventListener('submit', enviarFormulario);
+});  
+    </script>
+</body>
+</html>

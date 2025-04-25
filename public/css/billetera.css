@@ -193,3 +193,80 @@ body, html {
     background-color: #dc3545;
     color: white;
 }
+
+/* Estilos para pantallas pequeñas (móviles) */
+@media (max-width: 768px) {
+    .principal {
+        padding: 10px; /* Reducir el padding para pantallas pequeñas */
+    }
+
+    .payment-methods {
+        padding: 15px; /* Reducir el padding */
+        margin-top: 15px;
+        max-width: 100%; /* Ocupa todo el ancho disponible */
+    }
+
+    .payment-method-item {
+        flex-direction: column; /* Apilar contenido verticalmente */
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    .payment-method-item p {
+        font-size: 14px; /* Reducir tamaño de fuente */
+        margin-bottom: 10px;
+    }
+
+    .edit-btn, .delete-btn {
+        width: 100%; /* Botones ocupan todo el ancho */
+        margin-left: 0;
+        margin-bottom: 10px; /* Espacio entre botones */
+    }
+
+    .add-payment-btn {
+        font-size: 14px; /* Reducir tamaño de fuente */
+        padding: 8px 15px;
+    }
+
+    .formulario-tarjeta {
+        padding: 15px; /* Reducir padding */
+    }
+
+    .formulario-tarjeta input,
+    .formulario-tarjeta select {
+        font-size: 14px; /* Reducir tamaño de fuente */
+        padding: 8px; /* Ajustar padding */
+    }
+
+    .formulario-tarjeta button[type="submit"] {
+        font-size: 14px; /* Reducir tamaño de fuente */
+        padding: 8px 15px;
+    }
+}
+
+/* Estilos para pantallas medianas (tablets) */
+@media (max-width: 1024px) {
+    .payment-methods {
+        max-width: 80%; /* Ajustar el ancho */
+        padding: 20px;
+    }
+
+    .payment-method-item {
+        flex-wrap: wrap; /* Permitir que los elementos se ajusten */
+    }
+
+    .edit-btn, .delete-btn {
+        padding: 10px 20px; /* Ajustar tamaño de los botones */
+    }
+
+    .formulario-tarjeta input,
+    .formulario-tarjeta select {
+        font-size: 15px; /* Ajustar tamaño de fuente */
+        padding: 10px;
+    }
+
+    .formulario-tarjeta button[type="submit"] {
+        font-size: 15px; /* Ajustar tamaño de fuente */
+        padding: 10px 20px;
+    }
+}

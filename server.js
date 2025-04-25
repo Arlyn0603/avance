@@ -12,7 +12,7 @@ const http = require('http').createServer(app);
 const io = require('socket.io')(http);
 // Habilitar CORS para todas las rutas
 app.use(cors({
-    origin: 'http://localhost:3003', // Ajusta según tu URL frontend
+    origin: 'http://localhost:3000', // Ajusta según tu URL frontend
     credentials: true
 }));
 
@@ -45,12 +45,12 @@ app.use((req, res, next) => {
 let carrito = [];
 
 // Importar rutas
-const eventosRoutes = require("./routes/eventos");
-app.use("/eventos", eventosRoutes);
+const eventosRoutes = require("./routes/evento");
+app.use("/evento", eventosRoutes);
 
 // Ruta principal
 app.get("/", (req, res) => {
-    res.redirect("/eventos");
+    res.redirect("/evento");
 });
 
 // Ruta para cerrar sesión
@@ -64,23 +64,38 @@ app.get("/logout", (req, res) => {
     });
 });
 
-// Ruta para mostrar el carrito
-// Ruta para mostrar el carrito
-app.post("/carrito", (req, res) => {
-    const { nombre, fecha, horario, ubicacion, zona, cantidad } = req.body;
-    const precio = obtenerPrecioZona(zona);
-    carrito.push({ 
-        nombre, 
-        fecha, 
-        horario, 
-        ubicacion, 
-        zona, 
-        cantidad: parseInt(cantidad), 
-        precio 
+// Ruta para agregar al carrito (modificada para manejar asientos)
+app.post("/carrito/agregar", (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/usuarios/login');
+    }
+
+    const { eventoId, eventoNombre, bloqueId, bloqueNombre, precio, asientos } = req.body;
+    
+    // Asegurar que asientos sea siempre un array
+    let asientosArray;
+    if (typeof asientos === 'string') {
+        asientosArray = [asientos]; // Convertir string a array con un elemento
+    } else if (Array.isArray(asientos)) {
+        asientosArray = asientos; // Ya es un array
+    } else {
+        asientosArray = []; // Valor por defecto si es undefined o otro tipo
+    }
+    
+    carrito.push({
+        eventoId,
+        nombre: eventoNombre, // Asegúrate de usar 'nombre' para coincidir con factura.js
+        bloqueId,
+        bloqueNombre,
+        precio: parseFloat(precio),
+        asientos: asientosArray,
+        cantidad: asientosArray.length,
+        eventoNombre // Mantener ambos por compatibilidad
     });
+    
     res.redirect("/carrito");
 });
-
+// Ruta para mostrar el carrito
 app.get("/carrito", async (req, res) => {
     if (!req.session.user) {
         return res.redirect('/usuarios/login');
@@ -93,23 +108,84 @@ app.get("/carrito", async (req, res) => {
         const result = await request.execute('ObtenerTarjetasPorEmail');
         
         const tarjetas = result.recordset || [];
-        const subtotal = carrito.reduce((acc, item) => acc + item.cantidad * item.precio, 0);
+        const subtotal = carrito.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
         const impuestos = subtotal * 0.13;
         const total = subtotal + impuestos;
         
-        res.render("carrito", { carrito, subtotal, impuestos, total, tarjetas, successMessage: null, errorMessage: null });
+        res.render("carrito", { 
+            carrito, 
+            subtotal, 
+            impuestos, 
+            total, 
+            tarjetas, 
+            successMessage: null, 
+            errorMessage: null 
+        });
     } catch (err) {
         console.error('Error al obtener tarjetas:', err);
-        res.render("carrito", { carrito, subtotal: 0, impuestos: 0, total: 0, tarjetas: [], successMessage: null, errorMessage: 'Error al obtener tarjetas' });
+        res.render("carrito", { 
+            carrito, 
+            subtotal: 0, 
+            impuestos: 0, 
+            total: 0, 
+            tarjetas: [], 
+            successMessage: null, 
+            errorMessage: 'Error al obtener tarjetas' 
+        });
     }
 });
-
-// Ruta para modificar la cantidad de un ítem en el carrito
-app.post("/carrito/modificar", (req, res) => {
-    const { index, cantidad } = req.body;
-    carrito[index].cantidad = parseInt(cantidad);
-    res.redirect("/carrito");
+// Rutas de preventa
+// Ruta para preventa admin
+app.get('/preventa-admin', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        
+        // Obtener eventos
+        const eventosResult = await pool.request().query(`
+            SELECT e.eventoId, e.nombre, e.tipo, e.fecha, 
+                   l.nombre AS lugarNombre, l.id AS lugarId
+            FROM Evento e
+            JOIN Lugares l ON e.lugarId = l.id
+            ORDER BY e.fecha DESC
+        `);
+        
+        // Obtener lugares
+        const lugaresResult = await pool.request().query(`
+            SELECT id, nombre FROM Lugares ORDER BY nombre
+        `);
+        
+        // Obtener métodos de pago disponibles
+        const metodosPagoResult = await pool.request().query(`
+            SELECT DISTINCT TipoTarjeta 
+            FROM Tarjetas
+            WHERE TipoTarjeta IN ('Visa', 'Mastercard', 'American Express')
+        `);
+        
+        res.render('preventa-admin', {
+            user: req.session.user || null,
+            eventos: eventosResult.recordset,
+            lugares: lugaresResult.recordset,
+            metodosPagoDisponibles: metodosPagoResult.recordset,
+            preventa: null // Inicialmente null, se puede cargar si hay un evento específico
+        });
+    } catch (error) {
+        console.error('Error loading preventa admin page:', error);
+        res.status(500).send('Error loading preventa admin page');
+    }
 });
+// Agrega esto en tu server.js, preferiblemente con las otras rutas similares
+// Con esta:
+app.get('/configuracion', (req, res) => {
+    res.render('configuracion'); // Esto renderizará views/configuracion.ejs
+});
+
+
+// Importar rutas de empleados
+const empleadosRouter = require('./routes/empleados');
+app.use('/empleados', empleadosRouter);
+
+const chatbotRoutes = require('./routes/chatbot');
+app.use('/api', chatbotRoutes);
 
 // Ruta para eliminar un ítem del carrito
 app.post("/carrito/eliminar", (req, res) => {
@@ -118,8 +194,7 @@ app.post("/carrito/eliminar", (req, res) => {
     res.redirect("/carrito");
 });
 
-// Ruta para procesar la compra
-// Ruta para procesar la compra
+// Ruta para procesar la compra (modificada para manejar asientos)
 app.post("/comprar", async (req, res) => {
     const { tarjeta } = req.body;
 
@@ -132,13 +207,13 @@ app.post("/comprar", async (req, res) => {
     try {
         const pool = await poolPromise;
         transaction = new sql.Transaction(pool);
-
         await transaction.begin();
         const request = new sql.Request(transaction);
 
         // 1. Verificar tarjeta y saldo
-        request.input('NumeroTarjetaParam', sql.VarChar, tarjeta);
-        const tarjetaResult = await request.query('SELECT Saldo FROM Tarjetas WHERE NumeroTarjeta = @NumeroTarjetaParam');
+        const tarjetaResult = await request
+            .input('NumeroTarjetaParam', sql.VarChar, tarjeta)
+            .query('SELECT Saldo FROM Tarjetas WHERE NumeroTarjeta = @NumeroTarjetaParam');
         
         if (tarjetaResult.recordset.length === 0) {
             await transaction.rollback();
@@ -158,10 +233,13 @@ app.post("/comprar", async (req, res) => {
 
         // 2. Preparar datos para la factura
         const detallesCompra = carrito.map(item => ({
-            nombre: item.nombre,
-            zona: item.zona,
-            cantidad: item.cantidad,
+            eventoId: item.eventoId,
+            nombre: item.nombre || item.eventoNombre,
+            bloqueId: item.bloqueId,
+            bloqueNombre: item.bloqueNombre,
+            asientos: item.asientos || [],
             precioUnitario: item.precio,
+            cantidad: item.cantidad,
             subtotal: item.cantidad * item.precio
         }));
 
@@ -184,41 +262,28 @@ app.post("/comprar", async (req, res) => {
         };
 
         // 3. Registrar la compra en la base de datos
-
         for (const item of carrito) {
             await request
-                .input('zona', sql.NVarChar, item.zona)
+                .input('bloque', sql.NVarChar, item.bloqueNombre)
                 .input('cantidad', sql.Int, item.cantidad)
                 .input('NumeroTarjetaCompra', sql.VarChar, tarjeta)
                 .input('EmailCliente', sql.VarChar, req.session.user.email)
                 .input('Total', sql.Decimal(10, 2), totalCompra)
-                .input('nombreEvento', sql.NVarChar(255), item.nombre)
-                .input('ubicacion', sql.NVarChar(255), item.ubicacion)
+                .input('nombreEvento', sql.NVarChar(255), item.eventoNombre)
+                .input('ubicacion', sql.NVarChar(255), item.bloqueNombre)
                 .query(`
                     INSERT INTO Compras (
-                        zona, 
-                        cantidad, 
-                        NumeroTarjeta, 
-                        EmailCliente, 
-                        Total,
-                        nombreEvento,
-                        ubicacion,
-                        estado
-                    ) 
-                    VALUES (
-                        @zona, 
-                        @cantidad, 
-                        @NumeroTarjetaCompra, 
-                        @EmailCliente, 
-                        @Total,
-                        @nombreEvento,
-                        @ubicacion,
-                        'Completado'
+                        Bloque, Cantidad, NumeroTarjeta, 
+                        EmailCliente, Total, nombreEvento,
+                        ubicacion, estado
+                    ) VALUES (
+                        @bloque, @cantidad, @NumeroTarjetaCompra,
+                        @EmailCliente, @Total, @nombreEvento,
+                        @ubicacion, 'Completado'
                     )
                 `);
         }
 
-        // Resto del código permanece igual...
         // 4. Actualizar saldo de la tarjeta
         await request
             .input('NuevoSaldo', sql.Decimal(10, 2), saldoActual - totalCompra)
@@ -227,22 +292,32 @@ app.post("/comprar", async (req, res) => {
 
         await transaction.commit();
 
-        // 5. Enviar factura por correo (no bloqueante)
-        fetch('http://localhost:3003/factura/enviar-factura', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ datosFactura })
-        })
-        .then(response => response.json())
-        .then(data => console.log('Factura enviada:', data))
-        .catch(err => console.error('Error al enviar factura:', err));
+        // 5. Enviar factura por correo (con manejo mejorado de errores)
+        try {
+            const response = await fetch('http://localhost:3000/factura/enviar-factura', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ datosFactura })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Error en el servidor: ${errorText}`);
+            }
+
+            const data = await response.json();
+            console.log('Factura enviada:', data);
+        } catch (err) {
+            console.error('Error al enviar factura:', err);
+            // Continuar aunque falle el envío del correo
+        }
 
         // 6. Vaciar carrito y mostrar éxito
         carrito = [];
         
-        // Obtener tarjetas actualizadas para la vista
         const tarjetasRequest = new sql.Request(pool);
         tarjetasRequest.input('CorreoElectronico', sql.VarChar(100), req.session.user.email);
         const tarjetasResult = await tarjetasRequest.execute('ObtenerTarjetasPorEmail');
@@ -272,11 +347,12 @@ app.post("/comprar", async (req, res) => {
         });
     }
 });
+
+// Ruta para cancelar compra
 app.post("/compras/cancelar/:id", async (req, res) => {
     const { id } = req.params;
     const { razon } = req.body;
-    console.log("ID:", req.params.id);
-    console.log("Razón:", req.body.razon);
+    
     if (razon.toLowerCase() !== "accidente") {
         return res.status(400).json({
             success: false,
@@ -304,6 +380,7 @@ app.post("/compras/cancelar/:id", async (req, res) => {
     }
 });
 
+// Ruta para ver historial de compras
 app.get("/historial", async (req, res) => {
     if (!req.session.user) {
         return res.redirect('/usuarios/login');
@@ -321,8 +398,7 @@ app.get("/historial", async (req, res) => {
         console.error('Error al obtener el historial de compras:', err);
         res.render("historial", { historial: [], errorMessage: 'Error al obtener el historial de compras' });
     }
-});  
-
+});
 // Función para obtener el precio de una zona
 function obtenerPrecioZona(zona) {
     const precios = {
@@ -351,7 +427,47 @@ app.use('/factura', facturaRoutes)
 
 const atencionRoutes = require('./routes/atencion');
 app.use('/atencion', atencionRoutes);
+app.get('/usuario', (req, res) => {
+    res.render('usuario'); // Asegúrate de que 'usuario.ejs' esté en la carpeta 'views'
+});
 
+app.get('/administrador', (req, res) => {
+    res.render('administrador'); // Asegúrate de que 'usuario.ejs' esté en la carpeta 'views'
+});
+
+app.get('/informacion_u', (req, res) => {
+    if (req.session.user) { // Verifica si el usuario está autenticado
+        res.render('informacion_u', { user: req.session.user }); // Pasa la información del usuario al EJS
+    } else {
+        res.redirect('/usuarios/login'); // Redirige al login si no está autenticado
+    }
+});
+
+app.get('/usuario/informacion', (req, res) => {
+    if (req.isAuthenticated()) { // Verifica si el usuario está autenticado
+        res.render('informacion_u', { user: req.user }); // Pasa la información del usuario al EJS
+    } else {
+        res.redirect('/login'); // Redirige al login si no está autenticado
+    }
+});
+
+app.post('/usuario/actualizar', (req, res) => {
+    const { firstName, lastName, email, password } = req.body;
+
+    // Actualiza la información del usuario en la base de datos
+    User.findByIdAndUpdate(req.user._id, {
+        firstName,
+        lastName,
+        email,
+        ...(password && { password }) // Solo actualiza la contraseña si se proporciona
+    }, { new: true }, (err, updatedUser) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error al actualizar la información del usuario.');
+        }
+        res.redirect('/usuario/informacion'); // Redirige a la misma página después de guardar
+    });
+});
 // Configuración de Socket.io
 io.on('connection', (socket) => {
     console.log('Usuario conectado al chat');
@@ -372,9 +488,168 @@ io.on('connection', (socket) => {
         console.log('Usuario desconectado del chat');
     });
 });
+ 
+const analisisRoutes = require('./routes/analisis');
+app.use('/', analisisRoutes); // Cambia '/analisis' por '/'
 
+
+
+
+// Importar rutas
+const edificacionesRoutes = require("./routes/edificaciones");
+app.use("/edificaciones", edificacionesRoutes);
+
+// Ruta principal
+app.get('/edificaciones', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        const result = await pool.request().query("SELECT * FROM Lugares");
+        const lugares = result.recordset;
+
+        res.render('edificaciones', { lugares }); // Pasa los lugares a la vista
+    } catch (err) {
+        console.error("Error al obtener los lugares:", err);
+        res.status(500).send("Error al cargar la página de edificaciones.");
+    }
+});
+
+const eventoRoutes = require("./routes/evento");
+
+// filepath: c:\Users\arlin\Downloads\EasyTicket Header\EasyTicket administrador\EasyTicket v2\server.js
+app.use(async (req, res, next) => {
+    try {
+        const pool = await poolPromise; // Obtén la conexión al pool
+        await pool.request()
+            .input('ruta', sql.VarChar, req.originalUrl)
+            .input('usuario', sql.VarChar, req.session.user ? req.session.user.email : 'Anónimo')
+            .input('fecha', sql.DateTime, new Date())
+            .query('INSERT INTO RegistroEventos (ruta, usuario, fecha) VALUES (@ruta, @usuario, @fecha)');
+    } catch (err) {
+        console.error('Error al registrar evento:', err);
+    }
+    next();
+});
+
+// Configuración correcta de las rutas
+app.use("/evento", eventoRoutes);
+
+const comentariosRoutes = require('./routes/comentarios');
+app.use('/comentarios', comentariosRoutes);
+
+// Ruta para validar entradas con QR (modificada)
+app.get("/validar-entrada", async (req, res) => {
+    if (!req.session.user) {
+        const token = req.query.token;
+        return res.redirect(`/usuarios/login-lector?redirect=/validar-entrada?token=${encodeURIComponent(token)}`);
+    }
+    
+    if (req.session.user.tipo !== "Lector") {
+        return res.status(403).render('validacion-entrada', {
+            valido: false,
+            mensaje: 'No tiene autorización para validar entradas'
+        });
+    }
+
+    try {
+        const { token } = req.query;
+        const pool = await poolPromise;
+        
+        // 1. Verificar la entrada con los nombres de columna correctos
+        const entradaResult = await pool.request()
+            .input('token', sql.VarChar, token)
+            .query(`
+                SELECT 
+                    e.id,
+                    e.factura_id,
+                    e.evento_id,
+                    e.evento_nombre,
+                    e.usuario_id,
+                    e.bloque_id,
+                    e.bloque_nombre,
+                    e.asiento,
+                    e.precio,
+                    e.token,
+                    e.estado,
+                    e.fecha_compra,
+                    e.fecha_canje,
+                    e.lector_id
+                FROM Entradas e
+                WHERE e.token = @token
+            `);
+        
+        if (entradaResult.recordset.length === 0) {
+            return res.render('validacion-entrada', {
+                valido: false,
+                mensaje: 'Entrada no encontrada'
+            });
+        }
+        
+        const entrada = entradaResult.recordset[0];
+        
+        // 2. Si ya está canjeada
+        if (entrada.estado === 'Canjeado') {
+            return res.render('validacion-entrada', {
+                valido: false,
+                mensaje: 'Esta entrada ya fue canjeada anteriormente',
+                entrada: {
+                    evento_nombre: entrada.evento_nombre,
+                    bloque_nombre: entrada.bloque_nombre,
+                    asiento: entrada.asiento,
+                    fecha_canje: entrada.fecha_canje
+                }
+            });
+        }
+        
+        // 3. Actualizar estado a Canjeado
+        await pool.request()
+            .input('token', sql.VarChar, token)
+            .input('fecha_canje', sql.DateTime, new Date())
+            .input('lector_id', sql.Int, req.session.user.id)
+            .query(`
+                UPDATE Entradas 
+                SET estado = 'Canjeado', 
+                    fecha_canje = @fecha_canje,
+                    lector_id = @lector_id
+                WHERE token = @token
+            `);
+        
+        // 4. Obtener datos actualizados
+        const entradaActualizada = await pool.request()
+            .input('token', sql.VarChar, token)
+            .query(`
+                SELECT 
+                    e.*,
+                    u.Nombres as lector_nombre
+                FROM Entradas e
+                LEFT JOIN Usuarios u ON e.lector_id = u.id
+                WHERE e.token = @token
+            `);
+        
+        const entradaActual = entradaActualizada.recordset[0];
+        
+        res.render('validacion-entrada', {
+            valido: true,
+            mensaje: 'Entrada validada con éxito',
+            entrada: {
+                evento_nombre: entradaActual.evento_nombre,
+                bloque_nombre: entradaActual.bloque_nombre,
+                asiento: entradaActual.asiento,
+                fecha_canje: entradaActual.fecha_canje,
+                lector: entradaActual.lector_nombre || req.session.user.nombre
+            }
+        });
+        
+    } catch (error) {
+        console.error('Error al validar entrada:', error);
+        res.status(500).render('validacion-entrada', {
+            valido: false,
+            mensaje: 'Error al procesar la validación'
+        });
+    }
+});
 // Iniciar el servidor
-const PORT = process.env.PORT || 3003;
+const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    console.log(carrito);
 })
